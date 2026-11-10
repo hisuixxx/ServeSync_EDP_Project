@@ -1,5 +1,40 @@
-<footer class="mt-8 py-4 text-center text-gray-500 text-sm">
-  &copy; 2026 XianFire Framework — Built with ❤️ at Mindoro State University
+<footer class="servesync-footer servesync-shell">
+  <span><strong>ServeSync</strong> &middot; A clearer way to dine.</span>
+  <span>&copy; 2026 ServeSync &middot; A clearer way to dine</span>
 </footer>
+<script>
+  document.querySelectorAll("[data-modal-open]").forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      const modal = document.getElementById(trigger.dataset.modalOpen);
+      if (modal) {
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("servesync-modal-open");
+      }
+    });
+  });
+
+  document.querySelectorAll("[data-modal-close]").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const modal = document.getElementById(trigger.dataset.modalClose);
+      if (modal) {
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("servesync-modal-open");
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      document.querySelectorAll(".servesync-modal:not([hidden])").forEach((modal) => {
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("servesync-modal-open");
+      });
+    }
+  });
+</script>
 </body>
 </html>

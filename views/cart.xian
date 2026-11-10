@@ -1,0 +1,57 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Your cart</div>
+        <h1>Ready when you are.</h1>
+      </div>
+      <p>Your selected dishes will be ready for the next ordering step.</p>
+    </div>
+    {{#if orderConfirmation}}
+      <div class="servesync-notice servesync-order-success" role="status">{{ orderConfirmation }}</div>
+    {{/if}}
+    {{#if cart.length}}
+      <div class="servesync-cart-list">
+        {{#each cart}}
+          <article class="servesync-cart-item">
+            <div>
+              <div class="servesync-card-category">{{ product_name }}</div>
+              <p>Quantity: {{ quantity }}</p>
+            </div>
+            <strong>&#8369;{{ lineTotal }}</strong>
+          </article>
+        {{/each}}
+      </div>
+      <div class="servesync-cart-summary">
+        <div>
+          <span>Total</span>
+          <strong>&#8369;{{ cartTotal }}</strong>
+        </div>
+        <div class="servesync-detail-actions">
+          <a class="servesync-button servesync-button-ghost" href="/menu">Continue browsing</a>
+          <button class="servesync-button servesync-button-primary" type="button" data-modal-open="payment-modal">ORDER</button>
+        </div>
+      </div>
+    {{else}}
+      <div class="servesync-notice">
+        <p>Your cart is empty. Explore the menu to get started.</p>
+        <a class="servesync-button servesync-button-primary" href="/menu">Explore menu</a>
+      </div>
+    {{/if}}
+  </main>
+  <div class="servesync-modal" id="payment-modal" hidden aria-hidden="true">
+    <div class="servesync-modal-backdrop" data-modal-close="payment-modal"></div>
+    <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+      <button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="payment-modal">&times;</button>
+      <div class="servesync-kicker">Checkout</div>
+      <h2 id="payment-title">Choose your mode of payment</h2>
+      <form method="POST" action="/cart/order">
+        <label class="servesync-payment-option"><input type="radio" name="paymentMethod" value="GCash" required /> <span>GCash</span></label>
+        <label class="servesync-payment-option"><input type="radio" name="paymentMethod" value="COD" required /> <span>Cash on Delivery (COD)</span></label>
+        <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Confirm Order</button>
+      </form>
+    </section>
+  </div>
+  {{> footer }}

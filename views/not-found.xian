@@ -1,0 +1,12 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-notice">
+      <div class="servesync-kicker">Nothing here yet</div>
+      <h1>That dish could not be found.</h1>
+      <p>It may have been archived or is temporarily unavailable.</p>
+      <a class="servesync-button servesync-button-primary" href="/menu">Return to menu</a>
+    </div>
+  </main>
+  {{> footer }}

@@ -1,0 +1,40 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-detail">
+    <div class="servesync-detail-image">
+      {{#if product.image}}
+        <img src="{{ product.image }}" alt="{{ product.product_name }}" />
+      {{else}}
+        <span class="servesync-card-placeholder" aria-hidden="true">S</span>
+      {{/if}}
+    </div>
+    <article>
+      <div class="servesync-kicker">{{ product.category.category_name }}</div>
+      <h1>{{ product.product_name }}</h1>
+      <p class="servesync-detail-description">{{ product.description }}</p>
+      <div class="servesync-detail-meta">
+        <span class="servesync-detail-price">&#8369;{{ product.price }}</span>
+        {{#if product.availability}}
+          <span class="servesync-card-status">Available today</span>
+        {{else}}
+          <span class="servesync-unavailable">Currently unavailable</span>
+        {{/if}}
+      </div>
+      <div class="servesync-detail-actions">
+        {{#if isAuthenticated}}
+          {{#if product.availability}}
+            <form method="POST" action="/cart/items/{{ product.id }}">
+              <button class="servesync-button servesync-button-primary" type="submit">Add to cart</button>
+            </form>
+          {{else}}
+            <button class="servesync-button servesync-button-ghost" type="button" disabled>Unavailable</button>
+          {{/if}}
+        {{else}}
+          <a class="servesync-button servesync-button-primary" href="/login">Log in to order</a>
+        {{/if}}
+        <a class="servesync-button servesync-button-ghost" href="/menu">Back to menu</a>
+      </div>
+    </article>
+  </main>
+  {{> footer }}

@@ -1,13 +1,22 @@
 {{> head}}
-<body class="bg-gray-50">
-  <div class="flex justify-center mt-10">
-    <form class="flex flex-col w-96 p-6 border rounded-lg shadow" method="POST" action="/register">
-      <h2 class="text-xl font-bold mb-4 text-center">Register</h2>
-      <input type="text" name="name" placeholder="Name" class="mb-2 p-2 border rounded" required />
-      <input type="email" name="email" placeholder="Email" class="mb-2 p-2 border rounded" required />
-      <input type="password" name="password" placeholder="Password" class="mb-2 p-2 border rounded" required />
-      <button type="submit" class="bg-green-500 text-white p-2 rounded">Register</button>
-      <a href="/login" class="text-blue-700 mt-2 text-center">Already have an account? Login</a>
+<body class="servesync-body">
+  {{> head}}
+  <main class="servesync-shell servesync-auth-page">
+    <form class="servesync-auth-card" method="POST" action="/register">
+      <div class="servesync-kicker">Join ServeSync</div>
+      <h1>Create your account.</h1>
+      <p>Save your details and make your next dining moment simpler.</p>
+      <label class="servesync-form-field">Full name
+        <input type="text" name="name" autocomplete="name" placeholder="Your full name" required />
+      </label>
+      <label class="servesync-form-field">Email
+        <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+      </label>
+      <label class="servesync-form-field">Password
+        <input type="password" name="password" autocomplete="new-password" placeholder="At least 12 characters" minlength="12" required />
+      </label>
+      <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Create Account</button>
+      <p class="servesync-auth-switch">Already have an account? <a href="/login">Sign in</a></p>
     </form>
-  </div>
+  </main>
 {{> footer }}

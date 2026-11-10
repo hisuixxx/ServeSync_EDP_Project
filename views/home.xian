@@ -1,8 +1,22 @@
 {{> head }}
-<body class="bg-gray-50">
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-center mt-10">Welcome to XianFire 🔥</h1>
-    <p class="text-center mt-4">Home Page</p>
-    
-  </div>
-{{> footer }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-hero">
+    <div class="servesync-hero-grid">
+      <section>
+        <div class="servesync-kicker">Digital dining, made simple</div>
+        <h1>Good food starts with a <span>better flow.</span></h1>
+        <p class="servesync-lede">ServeSync brings your favorite restaurant menu, ordering moments, and service requests into one calm, convenient place.</p>
+        <div class="servesync-hero-actions">
+          <a class="servesync-button servesync-button-primary" href="/menu">Explore menu <span aria-hidden="true">&#8594;</span></a>
+          <a class="servesync-button servesync-button-ghost" href="/register">Create an account</a>
+        </div>
+        <p class="servesync-hero-note">Fresh choices. Clear details. Less waiting.</p>
+      </section>
+      <div class="servesync-plate" aria-label="A plated meal illustration">
+        <div class="servesync-plate-art" aria-hidden="true"></div>
+        <div class="servesync-plate-label">Made for your table</div>
+      </div>
+    </div>
+  </main>
+  {{> footer }}

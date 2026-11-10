@@ -1,0 +1,66 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">The public menu</div>
+        <h1>Find your next favorite.</h1>
+      </div>
+      <p>Browse what is available today, then open any dish for the full details before you decide.</p>
+    </div>
+
+    <form class="servesync-toolbar" method="GET" action="/menu" role="search">
+      <label class="servesync-search">
+        <span class="sr-only">Search the menu</span>
+        <input class="servesync-input" type="search" name="search" value="{{ search }}" placeholder="Search dishes or ingredients..." />
+      </label>
+      <label>
+        <span class="sr-only">Filter by category</span>
+        <select class="servesync-select" name="category" id="category-filter">
+          <option value="">All categories</option>
+          {{#each categories}}
+            <option value="{{ id }}">{{ category_name }}</option>
+          {{/each}}
+        </select>
+      </label>
+      <button class="servesync-button servesync-button-primary" type="submit">Search menu</button>
+      {{#if search}}
+        <a class="servesync-button servesync-button-ghost" href="/menu">Clear</a>
+      {{/if}}
+    </form>
+
+    <section class="servesync-product-grid" aria-live="polite">
+      {{#if menuError}}
+        <p class="servesync-empty">{{ menuError }}</p>
+      {{else if products.length}}
+        {{#each products}}
+          <a class="servesync-card" href="/menu/{{ id }}" aria-label="View details for {{ product_name }}">
+            <div class="servesync-card-image">
+              {{#if image}}
+                <img src="{{ image }}" alt="{{ product_name }}" loading="lazy" />
+              {{else}}
+                <span class="servesync-card-placeholder" aria-hidden="true">Dish</span>
+              {{/if}}
+              <span class="servesync-card-status {{#unless availability}}servesync-card-status-unavailable{{/unless}}">{{#if availability}}Available{{else}}Unavailable{{/if}}</span>
+            </div>
+            <div class="servesync-card-body">
+              <div class="servesync-card-category">{{ category.category_name }}</div>
+              <h2>{{ product_name }}</h2>
+              <p class="servesync-card-description">{{ description }}</p>
+              <div class="servesync-card-bottom">
+                <span class="servesync-price">&#8369;{{ price }}</span>
+                <span class="servesync-card-link">View details &#8594;</span>
+              </div>
+            </div>
+          </a>
+        {{/each}}
+      {{else}}
+        <p class="servesync-empty">No active dishes match your search. Try another dish or category.</p>
+      {{/if}}
+    </section>
+  </main>
+  <script>
+    document.getElementById("category-filter").value = "{{ selectedCategory }}";
+  </script>
+  {{> footer }}

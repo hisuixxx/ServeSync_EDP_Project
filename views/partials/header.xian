@@ -1,0 +1,34 @@
+<header class="servesync-header servesync-shell">
+  <a class="servesync-brand" href="/" aria-label="ServeSync home">
+    <span class="servesync-brand-mark" aria-hidden="true">S</span>
+    <span>ServeSync</span>
+  </a>
+  <nav class="servesync-nav" aria-label="Main navigation">
+    {{#if isAuthenticated}}
+      <a class="servesync-button servesync-button-ghost" href="/cart">Cart</a>
+      <a class="servesync-button servesync-button-ghost" href="/dashboard">Account</a>
+      <a class="servesync-button servesync-button-primary" href="/logout">Log out</a>
+    {{else if hideGuestAuth}}
+      <a class="servesync-button servesync-button-ghost" href="#auth-required-modal" data-modal-open="auth-required-modal">Cart</a>
+    {{else}}
+      <a class="servesync-button servesync-button-ghost" href="/login">Login</a>
+      <a class="servesync-button servesync-button-primary" href="/register">Create account</a>
+    {{/if}}
+  </nav>
+</header>
+
+{{#unless isAuthenticated}}
+  <div class="servesync-modal" id="auth-required-modal" hidden aria-hidden="true">
+    <div class="servesync-modal-backdrop" data-modal-close="auth-required-modal"></div>
+    <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-required-title">
+      <button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="auth-required-modal">&times;</button>
+      <div class="servesync-kicker">Account required</div>
+      <h2 id="auth-required-title">Sign in to view your cart</h2>
+      <p>You are not signed in to any account yet. Please sign in to view your cart and place orders.</p>
+      <div class="servesync-detail-actions">
+        <a class="servesync-button servesync-button-primary" href="/login">Sign In</a>
+        <a class="servesync-button servesync-button-ghost" href="/register">Create Account</a>
+      </div>
+    </section>
+  </div>
+{{/unless}}

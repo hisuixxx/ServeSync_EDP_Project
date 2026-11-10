@@ -25,9 +25,17 @@
     */
     
 import express from "express";
-import { homePage } from "../controllers/homeController.js";
+import { homePage, serviceRequest } from "../controllers/homeController.js";
+import { productcontroller } from "../controllers/productcontroller.js";
+import { addToCart, cartPage, placeOrder } from "../controllers/cartController.js";
 const router = express.Router();
 router.get("/", homePage);
+router.get("/request/:service(catering|delivery)", serviceRequest);
+router.get("/menu", productcontroller.menu);
+router.get("/menu/:id", productcontroller.detail);
+router.get("/cart", cartPage);
+router.post("/cart/items/:id", addToCart);
+router.post("/cart/order", placeOrder);
 
 import { loginPage, registerPage, forgotPasswordPage, dashboardPage, loginUser, registerUser, logoutUser } from "../controllers/authController.js";
 

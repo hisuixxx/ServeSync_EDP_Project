@@ -1,0 +1,15 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-notice">
+      <div class="servesync-kicker">{{ service }} request</div>
+      <h1>Let’s plan something good.</h1>
+      <p>Tell our team what you need and we’ll help shape the right ServeSync experience for you.</p>
+      <div class="servesync-detail-actions">
+        <a class="servesync-button servesync-button-primary" href="/register">Create an account</a>
+        <a class="servesync-button servesync-button-ghost" href="/menu">Browse the menu</a>
+      </div>
+    </div>
+  </main>
+  {{> footer }}
