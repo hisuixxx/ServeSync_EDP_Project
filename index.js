@@ -32,6 +32,7 @@ import fs from 'fs';
 import hbs from "hbs";
 import { fileURLToPath, pathToFileURL } from "url";
 import { dirname } from "path";
+import { loadCurrentUser } from "./middleware/auth.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -44,9 +45,15 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(session({
-  secret: "xianfire-secret-key",
+  secret: process.env.SESSION_SECRET || "development-only-change-me",
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 1000 * 60 * 60 * 24,
+  },
 }));
 app.use(flash());
 
@@ -74,6 +81,7 @@ app.use((req, res, next) => {
   res.locals.isAuthenticated = Boolean(req.session.userId);
   next();
 });
+app.use(loadCurrentUser);
 
 
 app.set("views", path.join(__dirname, "views"));

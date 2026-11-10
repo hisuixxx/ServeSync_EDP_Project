@@ -1,19 +1,27 @@
 {{> head}}
 <body class="servesync-body">
-  {{> head}}
+  {{> header}}
   <main class="servesync-shell servesync-auth-page">
     <form class="servesync-auth-card" method="POST" action="/register">
       <div class="servesync-kicker">Join ServeSync</div>
       <h1>Create your account.</h1>
       <p>Save your details and make your next dining moment simpler.</p>
+      {{#if errors}}
+        <div class="servesync-form-error" role="alert">
+          {{#each errors}}<div>{{ this }}</div>{{/each}}
+        </div>
+      {{/if}}
       <label class="servesync-form-field">Full name
-        <input type="text" name="name" autocomplete="name" placeholder="Your full name" required />
+        <input type="text" name="name" value="{{ form.fullName }}" autocomplete="name" placeholder="Your full name" required />
       </label>
       <label class="servesync-form-field">Email
-        <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
+        <input type="email" name="email" value="{{ form.email }}" autocomplete="email" placeholder="you@example.com" required />
       </label>
       <label class="servesync-form-field">Password
         <input type="password" name="password" autocomplete="new-password" placeholder="At least 12 characters" minlength="12" required />
+      </label>
+      <label class="servesync-form-field">Confirm password
+        <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required />
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Create Account</button>
       <p class="servesync-auth-switch">Already have an account? <a href="/login">Sign in</a></p>

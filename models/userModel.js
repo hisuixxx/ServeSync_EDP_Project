@@ -30,6 +30,7 @@ export const User = sequelize.define("User", {
   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   full_name: { type: DataTypes.STRING(150), allowNull: false },
   email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
+  phone: { type: DataTypes.STRING(30), allowNull: true },
   password: { type: DataTypes.STRING(255), allowNull: false },
   role: { type: DataTypes.ENUM("admin", "staff", "customer"), allowNull: false, defaultValue: "customer" },
   status: { type: DataTypes.ENUM("active", "inactive"), allowNull: false, defaultValue: "active" },

@@ -27,33 +27,84 @@
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
 
-export const loginPage = (req, res) => res.render("login", { title: "Login" });
-export const registerPage = (req, res) => res.render("register", { title: "Register" });
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const regenerateSession = (req) => new Promise((resolve, reject) => {
+  req.session.regenerate(error => error ? reject(error) : resolve());
+});
+
+const authView = (view, title, data = {}) => ({ title: `ServeSync | ${title}`, ...data });
+
+export const loginPage = (req, res) => res.render("login", authView("login", "Sign in"));
+export const registerPage = (req, res) => res.render("register", authView("register", "Create account"));
 export const forgotPasswordPage = (req, res) => res.render("forgotpassword", { title: "Forgot Password" });
 export const dashboardPage = (req, res) => {
-  if (!req.session.userId) return res.redirect("/login");
-  res.render("dashboard", { title: "Dashboard" });
+  res.render("dashboard", authView("dashboard", "Account", { user: req.user }));
 };
 
 export const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-  const user = await User.findOne({ where: { email, status: "active" } });
-  if (!user) return res.send("User not found");
-  const match = await bcrypt.compare(password, user.password);
-  if (!match) return res.send("Incorrect password");
-  req.session.userId = user.id;
-  res.redirect("/dashboard");
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const password = String(req.body.password || "");
+  const user = await User.findOne({ where: { email } });
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return res.status(401).render("login", authView("login", "Sign in", { error: "The email or password is incorrect." }));
+  }
+  if (user.status !== "active") {
+    return res.status(403).render("login", authView("login", "Sign in", { error: "This account is inactive. Please contact support." }));
+  }
+
+  try {
+    await regenerateSession(req);
+    req.session.userId = user.id;
+    req.session.userRole = user.role;
+    res.redirect("/dashboard");
+  } catch (error) {
+    res.status(500).render("login", authView("login", "Sign in", { error: "Unable to start your session. Please try again." }));
+  }
 };
 
 export const registerUser = async (req, res) => {
-  const { name, email, password } = req.body;
-  const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ full_name: name, email, password: hashed, role: "customer", status: "active" });
+  const fullName = String(req.body.name || "").trim();
+  const email = String(req.body.email || "").trim().toLowerCase();
+  const password = String(req.body.password || "");
+  const confirmPassword = String(req.body.confirmPassword || "");
+  const errors = [];
+
+  if (!fullName) errors.push("Full name is required.");
+  if (!emailPattern.test(email)) errors.push("Enter a valid email address.");
+  if (password.length < 12) errors.push("Password must be at least 12 characters.");
+  if (password !== confirmPassword) errors.push("Passwords do not match.");
+  if (errors.length) {
+    return res.status(400).render("register", authView("register", "Create account", { errors, form: { fullName, email } }));
+  }
+
+  const existingUser = await User.findOne({ where: { email } });
+  if (existingUser) {
+    return res.status(409).render("register", authView("register", "Create account", {
+      errors: ["An account with that email already exists."],
+      form: { fullName, email },
+    }));
+  }
+
+  const hashed = await bcrypt.hash(password, 12);
+  const user = await User.create({
+    full_name: fullName,
+    email,
+    password: hashed,
+    role: "customer",
+    status: "active",
+  });
+
+  await regenerateSession(req);
   req.session.userId = user.id;
+  req.session.userRole = "customer";
   res.redirect("/dashboard");
 };
 
 export const logoutUser = (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+  req.session.destroy(() => {
+    res.clearCookie("connect.sid");
+    res.redirect("/");
+  });
 };

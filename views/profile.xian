@@ -1,0 +1,46 @@
+{{> head}}
+<body class="servesync-body">
+  {{> header}}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Account settings</div>
+        <h1>Your profile.</h1>
+      </div>
+      <p>Keep your personal and contact information up to date.</p>
+    </div>
+    <div class="servesync-profile-grid">
+      <form class="servesync-auth-card" method="POST" action="/profile">
+        <h2>Personal information</h2>
+        {{#if profileError}}<p class="servesync-form-error" role="alert">{{ profileError }}</p>{{/if}}
+        {{#if profileSuccess}}<p class="servesync-form-success" role="status">{{ profileSuccess }}</p>{{/if}}
+        <label class="servesync-form-field">Full name
+          <input type="text" name="fullName" value="{{ user.full_name }}" autocomplete="name" required />
+        </label>
+        <label class="servesync-form-field">Email
+          <input type="email" name="email" value="{{ user.email }}" autocomplete="email" required />
+        </label>
+        <label class="servesync-form-field">Contact number
+          <input type="tel" name="phone" value="{{ user.phone }}" autocomplete="tel" placeholder="Optional phone number" />
+        </label>
+        <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Save profile</button>
+      </form>
+
+      <form class="servesync-auth-card" method="POST" action="/profile/password">
+        <h2>Change password</h2>
+        {{#if passwordError}}<p class="servesync-form-error" role="alert">{{ passwordError }}</p>{{/if}}
+        {{#if passwordSuccess}}<p class="servesync-form-success" role="status">{{ passwordSuccess }}</p>{{/if}}
+        <label class="servesync-form-field">Current password
+          <input type="password" name="currentPassword" autocomplete="current-password" required />
+        </label>
+        <label class="servesync-form-field">New password
+          <input type="password" name="newPassword" autocomplete="new-password" minlength="12" required />
+        </label>
+        <label class="servesync-form-field">Confirm new password
+          <input type="password" name="confirmPassword" autocomplete="new-password" minlength="12" required />
+        </label>
+        <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Change password</button>
+      </form>
+    </div>
+  </main>
+{{> footer }}

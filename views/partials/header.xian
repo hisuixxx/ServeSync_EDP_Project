@@ -5,11 +5,12 @@
   </a>
   <nav class="servesync-nav" aria-label="Main navigation">
     {{#if isAuthenticated}}
-      <a class="servesync-button servesync-button-ghost" href="/cart">Cart</a>
-      <a class="servesync-button servesync-button-ghost" href="/dashboard">Account</a>
+      <div class="servesync-user-summary" aria-label="Signed-in user">
+        <strong>Welcome, {{ currentUser.full_name }}</strong>
+        <span>{{ currentUser.email }} &middot; {{ currentUser.status }}</span>
+      </div>
       <a class="servesync-button servesync-button-primary" href="/logout">Log out</a>
     {{else if hideGuestAuth}}
-      <a class="servesync-button servesync-button-ghost" href="#auth-required-modal" data-modal-open="auth-required-modal">Cart</a>
     {{else}}
       <a class="servesync-button servesync-button-ghost" href="/login">Login</a>
       <a class="servesync-button servesync-button-primary" href="/register">Create account</a>

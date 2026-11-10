@@ -1,11 +1,12 @@
 {{> head}}
 <body class="servesync-body">
-  {{> head}}
+  {{> header}}
   <main class="servesync-shell servesync-auth-page">
     <form class="servesync-auth-card" method="POST" action="/login">
       <div class="servesync-kicker">Welcome back</div>
       <h1>Sign in to ServeSync.</h1>
       <p>Pick up where you left off and keep your next order close.</p>
+      {{#if error}}<p class="servesync-form-error" role="alert">{{ error }}</p>{{/if}}
       <label class="servesync-form-field">Email
         <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
       </label>
