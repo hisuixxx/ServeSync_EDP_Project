@@ -12,6 +12,7 @@
     "dev": "nodemon index.js",
     "xian": "nodemon index.js",
     "migrate": "node migrate.js",
+    "admin:create": "node createAdmin.js",
     "create:model": "node create.js model",
     "create:controller": "node create.js controller",
     "create:add-middleware": "node create.js middleware",
@@ -20,12 +21,12 @@
     "route:cache": "node route-cache.js"
   },
   "dependencies": {
-    "express": "^4.19.2",
-    "inquirer": "^9.2.15",
-    "bcrypt": "^5.1.0",
-    "express-session": "^1.17.3",
+    "bcrypt": "^6.0.0",
     "connect-flash": "^0.1.1",
+    "express": "^4.19.2",
+    "express-session": "^1.17.3",
     "hbs": "^4.2.0",
+    "inquirer": "^9.2.15",
     "multer": "^2.0.2",
     "mysql2": "^3.9.2",
     "sequelize": "^6.37.3"

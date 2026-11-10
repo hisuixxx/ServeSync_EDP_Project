@@ -26,7 +26,19 @@
     
 import { Sequelize } from "sequelize";
 
-export const sequelize = new Sequelize("ServeSync_E-Commerce_Atienza", "root", "", {
-  host: "localhost",
-  dialect: "mysql"
+const database = process.env.DB_NAME || "ServeSync_E-Commerce_Atienza";
+const username = process.env.DB_USER || "root";
+const password = process.env.DB_PASSWORD || "";
+const host = process.env.DB_HOST || "localhost";
+const port = Number(process.env.DB_PORT || 3306);
+
+export const sequelize = new Sequelize(database, username, password, {
+  host,
+  port,
+  dialect: "mysql",
+  logging: process.env.DB_LOGGING === "true" ? console.log : false,
+  define: {
+    underscored: true,
+    timestamps: true,
+  },
 });

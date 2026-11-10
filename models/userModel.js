@@ -27,9 +27,14 @@ import { DataTypes } from "sequelize";
 import { sequelize } from "./db.js";
 
 export const User = sequelize.define("User", {
-  name: { type: DataTypes.STRING, allowNull: false },
-  email: { type: DataTypes.STRING, allowNull: false },
-  password: { type: DataTypes.STRING, allowNull: false },
-  role: { type: DataTypes.ENUM("admin", "staff", "visitors"), allowNull: false, defaultValue: "visitors" }
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  full_name: { type: DataTypes.STRING(150), allowNull: false },
+  email: { type: DataTypes.STRING(255), allowNull: false, unique: true },
+  password: { type: DataTypes.STRING(255), allowNull: false },
+  role: { type: DataTypes.ENUM("admin", "staff", "customer"), allowNull: false, defaultValue: "customer" },
+  status: { type: DataTypes.ENUM("active", "inactive"), allowNull: false, defaultValue: "active" },
+}, {
+  tableName: "Users",
 });
-export { sequelize }; 
+
+export { sequelize };

@@ -1,32 +1,63 @@
-
 import { Sequelize } from "sequelize";
+import bcrypt from "bcrypt";
 import { sequelize } from "./models/db.js";
 import { User } from "./models/userModel.js";
-import inquirer from "inquirer";
+import "./models/associations.js";
 
-const rootSequelize = new Sequelize("mysql://root:@localhost:3306/");
+const database = process.env.DB_NAME || "ServeSync_E-Commerce_Atienza";
+const host = process.env.DB_HOST || "localhost";
+const port = Number(process.env.DB_PORT || 3306);
+const username = process.env.DB_USER || "root";
+const password = process.env.DB_PASSWORD || "";
 
-const { createDb } = await inquirer.prompt([
-  {
-    type: "confirm",
-    name: "createDb",
-    message: "Database 'ServeSync_E-Commerce_Atienza' may not exist. Create it?",
-    default: true,
-  },
-]);
+const rootSequelize = new Sequelize({
+  dialect: "mysql",
+  host,
+  port,
+  username,
+  password,
+  logging: false,
+});
 
-if (createDb) {
-  await rootSequelize.query("CREATE DATABASE IF NOT EXISTS ServeSync_E-Commerce_Atienza;");
-  console.log("✅ Database created (if it did not exist)");
-}
+const quotedDatabase = `\`${database.replace(/`/g, "``")}\``;
 
 try {
+  if (process.env.DB_CREATE !== "false") {
+    await rootSequelize.query(`CREATE DATABASE IF NOT EXISTS ${quotedDatabase}`);
+    console.log(`✅ Database is available: ${database}`);
+  }
+
+  await rootSequelize.close();
   await sequelize.authenticate();
   console.log("✅ Connected to MySQL database!");
-  await sequelize.sync({ force: true });
-  console.log("✅ Tables created for all models!");
+  await sequelize.sync({ alter: true });
+  console.log("✅ Database schema synchronized without dropping tables or records.");
+
+  if (process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD) {
+    const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 12);
+    const [admin, created] = await User.findOrCreate({
+      where: { email: process.env.ADMIN_EMAIL },
+      defaults: {
+        full_name: process.env.ADMIN_NAME || "System Administrator",
+        email: process.env.ADMIN_EMAIL,
+        password: hashedPassword,
+        role: "admin",
+        status: "active",
+      },
+    });
+
+    if (created) {
+      console.log(`✅ Administrator created: ${admin.email}`);
+    } else {
+      console.log(`ℹ️ Administrator already exists: ${admin.email}`);
+    }
+  }
 } catch (err) {
-  console.error("❌ Migration failed:", err);
+  console.error("❌ Migration failed:", err.message);
+  process.exitCode = 1;
 } finally {
-  process.exit();
+  await sequelize.close();
+  if (!rootSequelize.options.replication) {
+    await rootSequelize.close().catch(() => {});
+  }
 }

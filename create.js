@@ -190,7 +190,7 @@ export { ${camelName} };
 };
 
 // ─── Middleware (auth / role guards) ────────────────────────────────────────
-const USER_ROLE_FIELD = 'role: { type: DataTypes.ENUM("admin", "staff", "visitors"), allowNull: false, defaultValue: "visitors" }';
+const USER_ROLE_FIELD = 'role: { type: DataTypes.ENUM("admin", "staff", "customer"), allowNull: false, defaultValue: "customer" }';
 
 // Ensure models/userModel.js declares the "role" ENUM column (Sequelize models only).
 // Idempotent: an existing "role" field is never duplicated or overwritten.
@@ -253,7 +253,7 @@ const ensureUserRole = async () => {
   }
 
   await fs.writeFile(userModelPath, updated);
-  console.log('✅ Added "role" ENUM (admin / staff / visitors) to models/userModel.js');
+  console.log('✅ Added "role" ENUM (admin / staff / customer) to models/userModel.js');
 };
 
 const createMiddleware = async (middlewareName) => {

@@ -25,8 +25,7 @@
     */
     
 import bcrypt from "bcrypt";
-import { User, sequelize } from "../models/userModel.js";
-await sequelize.sync();
+import { User } from "../models/userModel.js";
 
 export const loginPage = (req, res) => res.render("login", { title: "Login" });
 export const registerPage = (req, res) => res.render("register", { title: "Register" });
@@ -38,7 +37,7 @@ export const dashboardPage = (req, res) => {
 
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  const user = await User.findOne({ where: { email } });
+  const user = await User.findOne({ where: { email, status: "active" } });
   if (!user) return res.send("User not found");
   const match = await bcrypt.compare(password, user.password);
   if (!match) return res.send("Incorrect password");
@@ -49,7 +48,7 @@ export const loginUser = async (req, res) => {
 export const registerUser = async (req, res) => {
   const { name, email, password } = req.body;
   const hashed = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, password: hashed });
+  const user = await User.create({ full_name: name, email, password: hashed, role: "customer", status: "active" });
   req.session.userId = user.id;
   res.redirect("/dashboard");
 };
