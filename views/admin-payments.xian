@@ -1,0 +1,50 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Administrator</div>
+        <h1>GCash payment review.</h1>
+      </div>
+      <p>Compare each submitted reference with the actual GCash transaction before marking a payment verified.</p>
+    </div>
+    {{#if success_msg}}<div class="servesync-notice servesync-order-success" role="status">{{ success_msg }}</div>{{/if}}
+    {{#if error_msg}}<div class="servesync-form-error" role="alert">{{ error_msg }}</div>{{/if}}
+
+    {{#if payments.length}}
+      <div class="servesync-admin-payment-list">
+        {{#each payments}}
+          <article class="servesync-checkout-section">
+            <div class="servesync-admin-payment-heading">
+              <div>
+                <div class="servesync-kicker">Order {{ order.order_number }}</div>
+                <h2>{{ order.customer_name }}</h2>
+              </div>
+              <strong>&#8369;{{ amount }} &middot; Pending</strong>
+            </div>
+            <dl class="servesync-gcash-details">
+              <div><dt>GCash reference</dt><dd>{{ reference_code }}</dd></div>
+              <div><dt>Submitted amount</dt><dd>&#8369;{{ amount }}</dd></div>
+              <div><dt>Order total</dt><dd>&#8369;{{ order.total_amount }}</dd></div>
+              <div><dt>Fulfillment</dt><dd>{{ order.order_type }}{{#if order.delivery_address}} &middot; {{ order.delivery_address }}{{/if}}</dd></div>
+              <div><dt>Contact</dt><dd>{{ order.phone }}</dd></div>
+            </dl>
+            <div class="servesync-admin-order-items">
+              <strong>Items</strong>
+              {{#each order.items}}
+                <p>{{ quantity }} &times; {{ product_name }} at &#8369;{{ unit_price }}</p>
+              {{/each}}
+            </div>
+            <p class="servesync-muted">Only verify after matching this reference and amount against the actual GCash transaction. This action records manual verification; it does not automatically complete the order.</p>
+            <form method="POST" action="/admin/payments/{{ id }}/verify">
+              <button class="servesync-button servesync-button-primary" type="submit">Mark payment verified</button>
+            </form>
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <div class="servesync-notice">There are no GCash payments awaiting verification.</div>
+    {{/if}}
+  </main>
+  {{> footer }}

@@ -10,7 +10,10 @@
         <span>{{ currentUser.email }} &middot; {{ currentUser.status }}</span>
       </div>
       {{#if isCustomer}}
-        <a class="servesync-button servesync-button-ghost" href="/cart">View cart</a>
+        <a class="servesync-button servesync-button-ghost" href="/cart">View Cart</a>
+      {{/if}}
+      {{#if isAdmin}}
+        <a class="servesync-button servesync-button-ghost" href="/admin/payments">Payment review</a>
       {{/if}}
       <a class="servesync-button servesync-button-primary" href="/logout">Log out</a>
     {{else if hideGuestAuth}}
@@ -22,6 +25,7 @@
 </header>
 
 {{#unless isAuthenticated}}
+{{#unless hideGuestAuth}}
   <div class="servesync-modal" id="auth-required-modal" hidden aria-hidden="true">
     <div class="servesync-modal-backdrop" data-modal-close="auth-required-modal"></div>
     <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-required-title">
@@ -35,4 +39,5 @@
       </div>
     </section>
   </div>
+{{/unless}}
 {{/unless}}

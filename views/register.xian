@@ -6,7 +6,7 @@
       <div class="servesync-kicker">Join ServeSync</div>
       <h1>Create your account.</h1>
       <p>Save your details and make your next dining moment simpler.</p>
-      <input type="hidden" name="returnTo" value="{{ returnTo }}" />
+      {{#if error_msg}}<p class="servesync-form-error" role="alert">{{ error_msg }}</p>{{/if}}
       {{#if errors}}
         <div class="servesync-form-error" role="alert">
           {{#each errors}}<div>{{ this }}</div>{{/each}}
@@ -25,7 +25,7 @@
         <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required />
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Create Account</button>
-      <p class="servesync-auth-switch">Already have an account? <a href="/login?returnTo={{ returnTo }}">Sign in</a></p>
+      <p class="servesync-auth-switch">Already have an account? <a href="/login">Sign in</a></p>
     </form>
   </main>
 {{> footer }}

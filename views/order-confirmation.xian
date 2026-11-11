@@ -1,0 +1,64 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <section class="servesync-order-confirmation">
+      <div class="servesync-kicker">Order received</div>
+      <h1>Thank you, {{ order.customer_name }}.</h1>
+      {{#if order.paymentIsPending}}
+        <p>Your order has been submitted. Payment is <strong>pending manual verification</strong>; providing a reference number does not confirm payment.</p>
+      {{else}}
+        <p>Your GCash payment reference has been manually verified by ServeSync. Order fulfillment remains subject to restaurant confirmation.</p>
+      {{/if}}
+      <div class="servesync-order-number">
+        <span>Order number</span>
+        <strong>{{ order.order_number }}</strong>
+      </div>
+      <div class="servesync-order-status-grid">
+        <div><span>Order status</span><strong>{{ order.status }}</strong></div>
+        <div><span>Payment status</span><strong>{{ order.payment.status }}</strong></div>
+        <div><span>GCash reference</span><strong>{{ order.payment.reference_code }}</strong></div>
+        <div><span>Total amount</span><strong>&#8369;{{ order.total }}</strong></div>
+      </div>
+    </section>
+
+    <section class="servesync-checkout-section" aria-labelledby="confirmation-items-title">
+      <h2 id="confirmation-items-title">Order items</h2>
+      <div class="servesync-cart-list">
+        {{#each order.items}}
+          <article class="servesync-cart-item">
+            <div class="servesync-cart-product">
+              <div class="servesync-cart-image">
+                {{#if product_image}}
+                  <img src="{{ product_image }}" alt="{{ product_name }}" />
+                {{else}}
+                  <span class="servesync-card-placeholder" aria-hidden="true">S</span>
+                {{/if}}
+              </div>
+              <div class="servesync-cart-product-info">
+                <h2>{{ product_name }}</h2>
+                <p>Quantity: {{ quantity }}</p>
+                <p>Each: &#8369;{{ unitPrice }}</p>
+              </div>
+            </div>
+            <div class="servesync-cart-item-subtotal">
+              <span>Subtotal</span>
+              <strong>&#8369;{{ lineTotal }}</strong>
+            </div>
+          </article>
+        {{/each}}
+      </div>
+      <div class="servesync-order-fulfillment">
+        <h2>{{#if order.isDelivery}}Delivery{{else}}Pickup{{/if}} information</h2>
+        <p>Contact: {{ order.phone }}</p>
+        {{#if order.delivery_address}}<p>Address: {{ order.delivery_address }}</p>{{/if}}
+        {{#if order.pickup_instructions}}<p>{{ order.pickup_instructions }}</p>{{/if}}
+      </div>
+    </section>
+
+    <div class="servesync-checkout-actions">
+      <a class="servesync-button servesync-button-ghost" href="/menu">Continue browsing</a>
+      <a class="servesync-button servesync-button-primary" href="/dashboard">My account</a>
+    </div>
+  </main>
+  {{> footer }}

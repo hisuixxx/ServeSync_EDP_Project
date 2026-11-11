@@ -7,48 +7,51 @@
         <div class="servesync-kicker">Your cart</div>
         <h1>Ready when you are.</h1>
       </div>
-      <p>Review your selected dishes and quantities before proceeding.</p>
+      <p>Review your dishes, adjust quantities, and continue when you're ready.</p>
     </div>
+    {{#if success_msg}}<div class="servesync-notice servesync-order-success" role="status">{{ success_msg }}</div>{{/if}}
+    {{#if error_msg}}<div class="servesync-form-error" role="alert">{{ error_msg }}</div>{{/if}}
+    {{#if error}}<div class="servesync-form-error" role="alert">{{ error }}</div>{{/if}}
     {{#if orderConfirmation}}
       <div class="servesync-notice servesync-order-success" role="status">{{ orderConfirmation }}</div>
-    {{/if}}
-    {{#if cartMessage}}
-      <div class="servesync-cart-message servesync-cart-message-{{ cartMessageType }}" role="status">{{ cartMessage }}</div>
     {{/if}}
     {{#if cart.length}}
       <div class="servesync-cart-list">
         {{#each cart}}
           <article class="servesync-cart-item">
             <div class="servesync-cart-product">
-              <div class="servesync-cart-image">
+              <a class="servesync-cart-image" href="/menu/{{ product_id }}" aria-label="View {{ product_name }}">
                 {{#if product_image}}
-                  <img src="{{ product_image }}" alt="{{ product_name }}" />
+                  <img src="{{ product_image }}" alt="{{ product_name }}" loading="lazy" />
                 {{else}}
-                  <span class="servesync-card-placeholder" aria-hidden="true">Dish</span>
+                  <span class="servesync-card-placeholder" aria-hidden="true">S</span>
                 {{/if}}
-              </div>
-              <div class="servesync-cart-product-details">
+              </a>
+              <div class="servesync-cart-product-info">
                 {{#if category_name}}<div class="servesync-card-category">{{ category_name }}</div>{{/if}}
                 <h2>{{ product_name }}</h2>
                 <p>Unit price: &#8369;{{ price }}</p>
+                {{#unless productAvailable}}<p class="servesync-unavailable">Currently unavailable. Remove this item to proceed.</p>{{/unless}}
               </div>
             </div>
-            <div class="servesync-cart-quantity" aria-label="Quantity controls for {{ product_name }}">
-              <form method="POST" action="/cart/items/{{ id }}/decrease">
-                <button class="servesync-quantity-button" type="submit" aria-label="Decrease {{ product_name }} quantity" {{#unless canDecrease}}disabled{{/unless}}>&minus;</button>
-              </form>
-              <span>{{ quantity }}</span>
-              <form method="POST" action="/cart/items/{{ id }}/increase">
-                <button class="servesync-quantity-button" type="submit" aria-label="Increase {{ product_name }} quantity">+</button>
+            <div class="servesync-cart-item-controls">
+              <div class="servesync-cart-quantity" aria-label="Quantity: {{ quantity }}">
+                <form method="POST" action="/cart/items/{{ id }}/decrease">
+                  <button class="servesync-quantity-button" type="submit" aria-label="Decrease {{ product_name }} quantity">&#8722;</button>
+                </form>
+                <span>{{ quantity }}</span>
+                <form method="POST" action="/cart/items/{{ id }}/increase">
+                  <button class="servesync-quantity-button" type="submit" aria-label="Increase {{ product_name }} quantity">&#43;</button>
+                </form>
+              </div>
+              <div class="servesync-cart-item-subtotal">
+                <span>Subtotal</span>
+                <strong>&#8369;{{ lineTotal }}</strong>
+              </div>
+              <form method="POST" action="/cart/items/{{ id }}/remove">
+                <button class="servesync-remove-button" type="submit">Remove</button>
               </form>
             </div>
-            <div class="servesync-cart-line-total">
-              <span>Subtotal</span>
-              <strong>&#8369;{{ lineTotal }}</strong>
-            </div>
-            <form method="POST" action="/cart/items/{{ id }}/remove">
-              <button class="servesync-cart-remove" type="submit">Remove</button>
-            </form>
           </article>
         {{/each}}
       </div>
@@ -59,9 +62,11 @@
         </div>
         <div class="servesync-detail-actions">
           <a class="servesync-button servesync-button-ghost" href="/menu">Continue browsing</a>
-          <form method="POST" action="/cart/order">
-            <button class="servesync-button servesync-button-primary" type="submit">Proceed to Buy</button>
-          </form>
+          {{#if canProceed}}
+            <a class="servesync-button servesync-button-primary" href="/checkout">Proceed to Order</a>
+          {{else}}
+            <button class="servesync-button servesync-button-primary" type="button" disabled>Proceed to Order</button>
+          {{/if}}
         </div>
       </div>
     {{else}}

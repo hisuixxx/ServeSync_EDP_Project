@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Validate checkout implementation",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tests/validate-checkout.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	]
+}

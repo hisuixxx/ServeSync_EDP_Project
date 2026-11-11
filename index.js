@@ -76,9 +76,11 @@ app.engine("xian", async (filePath, options, callback) => {
   }
 });
 app.use((req, res, next) => {
-  res.locals.success_msg = req.flash("success_msg");
-  res.locals.error_msg = req.flash("error_msg");
+  res.locals.success_msg = req.flash("success_msg")[0] || "";
+  res.locals.error_msg = req.flash("error_msg")[0] || "";
   res.locals.isAuthenticated = Boolean(req.session.userId);
+  res.locals.isCustomer = false;
+  res.locals.isAdmin = false;
   next();
 });
 app.use(loadCurrentUser);

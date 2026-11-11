@@ -98,11 +98,7 @@ const productcontroller = {
         title: `ServeSync | ${product.product_name}`,
         hideGuestAuth: true,
         product: product.get({ plain: true }),
-        cartMessage: req.session.cartMessage || null,
-        cartMessageType: req.session.cartMessageType || "error",
       });
-      delete req.session.cartMessage;
-      delete req.session.cartMessageType;
     } catch (error) {
       console.error("Unable to load product:", error.message);
       res.status(503).render("not-found", { title: "ServeSync | Item unavailable", hideGuestAuth: true });

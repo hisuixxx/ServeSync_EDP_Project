@@ -25,9 +25,26 @@
 
 import { User } from "../models/userModel.js";
 
+const redirectToLogin = (req, res, message) => {
+  const productMatch = req.method === "POST" && req.path.match(/^\/cart\/items\/(\d+)$/);
+  const loginMessage = productMatch
+    ? "Please create an account or log in before adding items to your cart."
+    : message;
+  const returnTo = productMatch
+    ? `/menu/${productMatch[1]}`
+    : req.method === "GET" && req.originalUrl.startsWith("/") && !req.originalUrl.startsWith("//")
+      ? req.originalUrl
+      : "/cart";
+
+  req.session.returnTo = returnTo;
+  req.flash("error_msg", loginMessage);
+  return res.redirect("/login");
+};
+
 export const loadCurrentUser = async (req, res, next) => {
   res.locals.currentUser = null;
   res.locals.isCustomer = false;
+  res.locals.isAdmin = false;
 
   if (!req.session.userId) return next();
 
@@ -41,8 +58,9 @@ export const loadCurrentUser = async (req, res, next) => {
 
     req.user = user;
     res.locals.currentUser = user;
-    res.locals.isCustomer = user.role === "customer";
     res.locals.isAuthenticated = true;
+    res.locals.isCustomer = user.role === "customer";
+    res.locals.isAdmin = user.role === "admin";
     next();
   } catch (error) {
     next(error);
@@ -51,16 +69,7 @@ export const loadCurrentUser = async (req, res, next) => {
 
 export const requireAuth = async (req, res, next) => {
   if (!req.session.userId) {
-    const returnTo = req.originalUrl;
-    if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
-      req.session.returnTo = returnTo.startsWith("/cart/items/")
-        ? `/menu/${req.params.id}`
-        : returnTo;
-    }
-    req.session.authMessage = returnTo.startsWith("/cart/items/")
-      ? "You must create an account or log in before adding items to your cart."
-      : "Please log in or create an account to continue.";
-    return res.redirect("/login");
+    return redirectToLogin(req, res, "Please log in to continue.");
   }
 
   try {
@@ -72,6 +81,8 @@ export const requireAuth = async (req, res, next) => {
 
     req.user = user;
     res.locals.currentUser = user;
+    res.locals.isCustomer = user.role === "customer";
+    res.locals.isAdmin = user.role === "admin";
     next();
   } catch (error) {
     next(error);
@@ -84,8 +95,8 @@ export const requireRole = (role) => [
     const allowed = Array.isArray(role) ? role : [role];
 
     if (!req.user || !allowed.includes(req.user.role)) {
-      req.session.authMessage = "You do not have permission to perform this action.";
-      return res.redirect("/login");
+      req.flash("error_msg", "You do not have permission to perform this action.");
+      return res.redirect("/");
     }
 
     next();

@@ -12,10 +12,7 @@
     <article>
       <div class="servesync-kicker">{{ product.category.category_name }}</div>
       <h1>{{ product.product_name }}</h1>
-      <p class="servesync-detail-description">{{ product.description }}</p>
-      {{#if cartMessage}}
-        <p class="servesync-cart-message servesync-cart-message-{{ cartMessageType }}" role="status">{{ cartMessage }}</p>
-      {{/if}}
+      <p class="servesync-detail-description">{{#if product.description}}{{ product.description }}{{else}}A delicious ServeSync favorite, freshly prepared for you.{{/if}}</p>
       <div class="servesync-detail-meta">
         <span class="servesync-detail-price">&#8369;{{ product.price }}</span>
         {{#if product.availability}}
@@ -24,18 +21,25 @@
           <span class="servesync-unavailable">Currently unavailable</span>
         {{/if}}
       </div>
+      {{#if error_msg}}<p class="servesync-form-error" role="alert">{{ error_msg }}</p>{{/if}}
+      {{#if success_msg}}<p class="servesync-form-success" role="status">{{ success_msg }}</p>{{/if}}
       <div class="servesync-detail-actions">
         {{#if product.availability}}
           <form class="servesync-add-cart-form" method="POST" action="/cart/items/{{ product.id }}">
-            <label class="servesync-quantity-label" for="product-quantity">Quantity</label>
-            <input class="servesync-input servesync-quantity-input" id="product-quantity" type="number" name="quantity" min="1" step="1" value="1" required />
-            <button class="servesync-button servesync-button-primary" type="submit">Add to cart</button>
+            <label class="servesync-form-field" for="product-quantity">Quantity</label>
+            <div class="servesync-quantity-picker">
+              <input class="servesync-input" id="product-quantity" type="number" name="quantity" min="1" max="99" value="1" required />
+              <button class="servesync-button servesync-button-primary" type="submit">Add to Cart</button>
+            </div>
           </form>
         {{else}}
           <button class="servesync-button servesync-button-ghost" type="button" disabled>Unavailable</button>
         {{/if}}
         <a class="servesync-button servesync-button-ghost" href="/menu">Back to menu</a>
       </div>
+      {{#unless isAuthenticated}}
+        <p class="servesync-auth-hint">You must <a href="/register">create an account</a> or <a href="/login">log in</a> to add items to your cart.</p>
+      {{/unless}}
     </article>
   </main>
   {{> footer }}
