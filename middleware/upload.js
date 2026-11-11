@@ -22,7 +22,6 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
     */
-
 import { User } from "../models/userModel.js";
 import multer from "multer";
 import path from "node:path";
