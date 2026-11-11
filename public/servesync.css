@@ -169,6 +169,33 @@ body.servesync-modal-open { overflow: hidden; }
 .servesync-cart-summary > div:first-child strong { color: var(--text); font-size: 1.4rem; }
 .servesync-cart-summary form { margin: 0; }
 .servesync-order-success { margin-bottom: 18px; border-color: rgba(87, 214, 154, 0.5); color: var(--emerald); }
+.servesync-request-form { width: min(760px, 100%); margin: 0 auto; }
+.servesync-request-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.servesync-request-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.servesync-request-section { margin-top: 34px; }
+.servesync-request-section > h2 { margin: 0 0 16px; font-family: "Space Grotesk", sans-serif; font-size: 1.65rem; }
+.servesync-request-list { display: grid; gap: 16px; }
+.servesync-request-card { padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+.servesync-request-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.servesync-request-heading h2, .servesync-request-heading h3 { margin: 0; font-family: "Space Grotesk", sans-serif; }
+.servesync-request-status { padding: 7px 11px; border: 1px solid var(--line); border-radius: 99px; color: var(--turquoise); font-size: 0.75rem; font-weight: 800; text-transform: capitalize; }
+.servesync-request-status-approved, .servesync-request-status-completed { color: var(--emerald); }
+.servesync-request-status-rejected, .servesync-request-status-cancelled { color: var(--coral); }
+.servesync-request-details { display: grid; gap: 11px; margin: 20px 0; }
+.servesync-request-details > div { display: grid; grid-template-columns: minmax(120px, 0.3fr) 1fr; gap: 14px; }
+.servesync-request-details dt { color: var(--muted); font-size: 0.82rem; font-weight: 700; }
+.servesync-request-details dd { margin: 0; overflow-wrap: anywhere; line-height: 1.55; }
+.servesync-request-customer { display: grid; gap: 5px; margin-top: 12px; color: var(--muted); font-size: 0.88rem; }
+.servesync-request-customer strong { color: var(--text); font-size: 1rem; }
+.servesync-request-status-form { display: grid; grid-template-columns: minmax(180px, 0.35fr) minmax(240px, 1fr) auto; align-items: end; gap: 14px; padding-top: 18px; border-top: 1px solid var(--line); }
+.servesync-request-status-form .servesync-form-field { margin-top: 0; }
+.servesync-request-status-form .servesync-select { margin-top: 8px; }
+.servesync-request-history { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); }
+.servesync-request-history summary { color: var(--turquoise); cursor: pointer; font-weight: 800; }
+.servesync-request-history p { line-height: 1.55; }
+.servesync-request-history strong { color: var(--text); text-transform: capitalize; }
+.servesync-admin-order-items { margin: 18px 0; color: var(--muted); }
+.servesync-admin-order-items p { margin: 7px 0; }
 .servesync-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; align-items: start; }
 .servesync-profile-grid .servesync-auth-card { width: 100%; }
 .servesync-profile-grid h2 { margin: 0 0 8px; font-family: "Space Grotesk", sans-serif; font-size: 1.45rem; }
@@ -183,6 +210,8 @@ body.servesync-modal-open { overflow: hidden; }
   .servesync-plate { min-height: 300px; }
   .servesync-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .servesync-detail-image { min-height: 330px; }
+  .servesync-request-status-form { grid-template-columns: 1fr; }
+  .servesync-request-status-form .servesync-button { justify-self: start; }
 }
 
 @media (max-width: 560px) {
@@ -202,4 +231,8 @@ body.servesync-modal-open { overflow: hidden; }
   .servesync-profile-grid { grid-template-columns: 1fr; }
   .servesync-cart-summary { display: block; }
   .servesync-cart-summary .servesync-detail-actions { margin-top: 18px; }
+  .servesync-request-fields { grid-template-columns: 1fr; gap: 0; }
+  .servesync-request-card { padding: 18px 15px; }
+  .servesync-request-details > div { grid-template-columns: 1fr; gap: 4px; }
+  .servesync-request-heading { align-items: flex-start; }
 }

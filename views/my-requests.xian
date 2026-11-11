@@ -1,0 +1,84 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Your service requests</div>
+        <h1>Request history.</h1>
+      </div>
+      <div class="servesync-detail-actions">
+        <a class="servesync-button servesync-button-ghost" href="/request/catering">Request catering</a>
+        <a class="servesync-button servesync-button-primary" href="/request/delivery">Request delivery</a>
+      </div>
+    </div>
+    {{#if success_msg}}<div class="servesync-form-success" role="status">{{ success_msg }}</div>{{/if}}
+    {{#if error_msg}}<div class="servesync-form-error" role="alert">{{ error_msg }}</div>{{/if}}
+    {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
+
+    <section class="servesync-request-section">
+      <h2>Catering</h2>
+      {{#if cateringRequests.length}}
+        <div class="servesync-request-list">
+          {{#each cateringRequests}}
+            <article class="servesync-request-card">
+              <div class="servesync-request-heading">
+                <h3>Catering request #{{ id }}</h3>
+                <span class="servesync-request-status servesync-request-status-{{ status }}">{{ status }}</span>
+              </div>
+              <dl class="servesync-request-details">
+                <div><dt>Event</dt><dd>{{ event_date }} at {{ event_time }}</dd></div>
+                <div><dt>Location</dt><dd>{{ event_location }}</dd></div>
+                <div><dt>Guests</dt><dd>{{ guest_count }}</dd></div>
+                <div><dt>Contact</dt><dd>{{ customer_name }} &middot; {{ contact_number }} &middot; {{ email }}</dd></div>
+                <div><dt>Food preferences</dt><dd>{{ food_preferences }}</dd></div>
+                {{#if special_instructions}}<div><dt>Instructions</dt><dd>{{ special_instructions }}</dd></div>{{/if}}
+                {{#if rejection_reason}}<div><dt>Rejection reason</dt><dd>{{ rejection_reason }}</dd></div>{{/if}}
+              </dl>
+              <details class="servesync-request-history">
+                <summary>Status history</summary>
+                {{#each history}}
+                  <p><strong>{{ status }}</strong> &middot; {{ createdAt }}{{#if changedBy}} &middot; {{ changedBy.full_name }}{{/if}}{{#if reason}} &mdash; {{ reason }}{{/if}}</p>
+                {{/each}}
+              </details>
+            </article>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="servesync-empty">You have not submitted any catering requests.</p>
+      {{/if}}
+    </section>
+
+    <section class="servesync-request-section">
+      <h2>Delivery</h2>
+      {{#if deliveryRequests.length}}
+        <div class="servesync-request-list">
+          {{#each deliveryRequests}}
+            <article class="servesync-request-card">
+              <div class="servesync-request-heading">
+                <h3>Delivery request #{{ id }}</h3>
+                <span class="servesync-request-status servesync-request-status-{{ status }}">{{ status }}</span>
+              </div>
+              <dl class="servesync-request-details">
+                <div><dt>Requested</dt><dd>{{ requested_date }} at {{ preferred_time }}</dd></div>
+                <div><dt>Delivery address</dt><dd>{{ delivery_address }}</dd></div>
+                <div><dt>Contact</dt><dd>{{ customer_name }} &middot; {{ contact_number }}</dd></div>
+                <div><dt>Order details</dt><dd>{{ order_details }}</dd></div>
+                {{#if special_instructions}}<div><dt>Instructions</dt><dd>{{ special_instructions }}</dd></div>{{/if}}
+                {{#if rejection_reason}}<div><dt>Rejection reason</dt><dd>{{ rejection_reason }}</dd></div>{{/if}}
+              </dl>
+              <details class="servesync-request-history">
+                <summary>Status history</summary>
+                {{#each history}}
+                  <p><strong>{{ status }}</strong> &middot; {{ createdAt }}{{#if changedBy}} &middot; {{ changedBy.full_name }}{{/if}}{{#if reason}} &mdash; {{ reason }}{{/if}}</p>
+                {{/each}}
+              </details>
+            </article>
+          {{/each}}
+        </div>
+      {{else}}
+        <p class="servesync-empty">You have not submitted any delivery requests.</p>
+      {{/if}}
+    </section>
+  </main>
+  {{> footer }}

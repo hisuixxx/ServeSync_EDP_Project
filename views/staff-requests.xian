@@ -1,0 +1,50 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Approved requests · Staff operations</div>
+        <h1>{{ requestType }} schedule.</h1>
+      </div>
+      <div class="servesync-detail-actions">
+        <a class="servesync-button servesync-button-ghost" href="/staff/requests/catering">Catering</a>
+        <a class="servesync-button servesync-button-ghost" href="/staff/requests/delivery">Delivery</a>
+      </div>
+    </div>
+    {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
+
+    {{#if requests.length}}
+      <div class="servesync-request-list">
+        {{#each requests}}
+          <article class="servesync-request-card">
+            <div class="servesync-request-heading">
+              <h2>{{ requestType }} request #{{ id }}</h2>
+              <span class="servesync-request-status servesync-request-status-approved">approved</span>
+            </div>
+            <div class="servesync-request-customer">
+              <strong>{{ customer_name }}</strong>
+              {{#if customer}}<span>{{ customer.full_name }}{{#if customer.email}} &middot; {{ customer.email }}{{/if}}</span>{{/if}}
+              <span>Contact: {{ contact_number }}</span>
+            </div>
+            <dl class="servesync-request-details">
+              {{#if isCatering}}
+                <div><dt>Event date and time</dt><dd>{{ event_date }} at {{ event_time }}</dd></div>
+                <div><dt>Event location</dt><dd>{{ event_location }}</dd></div>
+                <div><dt>Guests</dt><dd>{{ guest_count }}</dd></div>
+                <div><dt>Package / food preferences</dt><dd>{{ food_preferences }}</dd></div>
+              {{else}}
+                <div><dt>Delivery date and time</dt><dd>{{ requested_date }} at {{ preferred_time }}</dd></div>
+                <div><dt>Delivery address</dt><dd>{{ delivery_address }}</dd></div>
+                <div><dt>Order details</dt><dd>{{ order_details }}</dd></div>
+              {{/if}}
+              {{#if special_instructions}}<div><dt>Special instructions</dt><dd>{{ special_instructions }}</dd></div>{{/if}}
+            </dl>
+          </article>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="servesync-empty">There are no approved {{ requestType }} requests at this time.</p>
+    {{/if}}
+  </main>
+  {{> footer }}

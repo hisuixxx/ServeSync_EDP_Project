@@ -1,0 +1,45 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Delivery request</div>
+        <h1>Arrange a delivery.</h1>
+      </div>
+      <p>Tell our team when and where you would like your food delivered. We will review your request and update its status.</p>
+    </div>
+    {{#if errors}}
+      <div class="servesync-form-error" role="alert">{{#each errors}}<div>{{ this }}</div>{{/each}}</div>
+    {{/if}}
+    <form class="servesync-auth-card servesync-request-form" method="POST" action="/request/delivery">
+      <label class="servesync-form-field">Customer name
+        <input type="text" name="customerName" value="{{ form.customerName }}" maxlength="150" autocomplete="name" required />
+      </label>
+      <label class="servesync-form-field">Contact number
+        <input type="tel" name="contactNumber" value="{{ form.contactNumber }}" maxlength="30" autocomplete="tel" required />
+      </label>
+      <label class="servesync-form-field">Delivery address
+        <textarea class="servesync-textarea" name="deliveryAddress" maxlength="500" autocomplete="street-address" required>{{ form.deliveryAddress }}</textarea>
+      </label>
+      <div class="servesync-request-fields">
+        <label class="servesync-form-field">Requested delivery date
+          <input type="date" name="requestedDate" value="{{ form.requestedDate }}" min="{{ minDate }}" required />
+        </label>
+        <label class="servesync-form-field">Preferred delivery time
+          <input type="time" name="preferredTime" value="{{ form.preferredTime }}" required />
+        </label>
+      </div>
+      <label class="servesync-form-field">Food preferences or order details
+        <textarea class="servesync-textarea" name="orderDetails" maxlength="5000" required>{{ form.orderDetails }}</textarea>
+      </label>
+      <label class="servesync-form-field">Special instructions
+        <textarea class="servesync-textarea" name="specialInstructions" maxlength="5000">{{ form.specialInstructions }}</textarea>
+      </label>
+      <div class="servesync-request-actions">
+        <a class="servesync-button servesync-button-ghost" href="/my-requests">My requests</a>
+        <button class="servesync-button servesync-button-primary" type="submit">Submit delivery request</button>
+      </div>
+    </form>
+  </main>
+  {{> footer }}

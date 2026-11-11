@@ -1,0 +1,51 @@
+{{> head }}
+<body class="servesync-body">
+  {{> header }}
+  <main class="servesync-shell servesync-page">
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">Catering request</div>
+        <h1>Plan your event.</h1>
+      </div>
+      <p>Share your event details and preferences. Our team will review your request and update its status.</p>
+    </div>
+    {{#if errors}}
+      <div class="servesync-form-error" role="alert">{{#each errors}}<div>{{ this }}</div>{{/each}}</div>
+    {{/if}}
+    <form class="servesync-auth-card servesync-request-form" method="POST" action="/request/catering">
+      <label class="servesync-form-field">Customer name
+        <input type="text" name="customerName" value="{{ form.customerName }}" maxlength="150" autocomplete="name" required />
+      </label>
+      <label class="servesync-form-field">Contact number
+        <input type="tel" name="contactNumber" value="{{ form.contactNumber }}" maxlength="30" autocomplete="tel" required />
+      </label>
+      <label class="servesync-form-field">Email
+        <input type="email" name="email" value="{{ form.email }}" maxlength="255" autocomplete="email" required />
+      </label>
+      <div class="servesync-request-fields">
+        <label class="servesync-form-field">Event date
+          <input type="date" name="eventDate" value="{{ form.eventDate }}" min="{{ minDate }}" required />
+        </label>
+        <label class="servesync-form-field">Event time
+          <input type="time" name="eventTime" value="{{ form.eventTime }}" required />
+        </label>
+      </div>
+      <label class="servesync-form-field">Event location
+        <input type="text" name="eventLocation" value="{{ form.eventLocation }}" maxlength="500" required />
+      </label>
+      <label class="servesync-form-field">Number of guests
+        <input type="number" name="guestCount" value="{{ form.guestCount }}" min="1" max="10000" step="1" required />
+      </label>
+      <label class="servesync-form-field">Catering package or food preferences
+        <textarea class="servesync-textarea" name="foodPreferences" maxlength="5000" required>{{ form.foodPreferences }}</textarea>
+      </label>
+      <label class="servesync-form-field">Special instructions
+        <textarea class="servesync-textarea" name="specialInstructions" maxlength="5000">{{ form.specialInstructions }}</textarea>
+      </label>
+      <div class="servesync-request-actions">
+        <a class="servesync-button servesync-button-ghost" href="/my-requests">My requests</a>
+        <button class="servesync-button servesync-button-primary" type="submit">Submit catering request</button>
+      </div>
+    </form>
+  </main>
+  {{> footer }}

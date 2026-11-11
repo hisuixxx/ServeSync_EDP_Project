@@ -28,6 +28,8 @@ import { User } from "../models/userModel.js";
 export const loadCurrentUser = async (req, res, next) => {
   res.locals.currentUser = null;
   res.locals.isCustomer = false;
+  res.locals.isStaff = false;
+  res.locals.isAdmin = false;
 
   if (!req.session.userId) return next();
 
@@ -42,6 +44,8 @@ export const loadCurrentUser = async (req, res, next) => {
     req.user = user;
     res.locals.currentUser = user;
     res.locals.isCustomer = user.role === "customer";
+    res.locals.isStaff = user.role === "staff";
+    res.locals.isAdmin = user.role === "admin";
     res.locals.isAuthenticated = true;
     next();
   } catch (error) {
@@ -72,6 +76,9 @@ export const requireAuth = async (req, res, next) => {
 
     req.user = user;
     res.locals.currentUser = user;
+    res.locals.isCustomer = user.role === "customer";
+    res.locals.isStaff = user.role === "staff";
+    res.locals.isAdmin = user.role === "admin";
     next();
   } catch (error) {
     next(error);

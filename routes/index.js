@@ -25,16 +25,26 @@
     */
     
 import express from "express";
-import { homePage, serviceRequest } from "../controllers/homeController.js";
+import { homePage } from "../controllers/homeController.js";
 import { productcontroller } from "../controllers/productcontroller.js";
 import { cartController } from "../controllers/cartController.js";
 import { profilePage, updateProfile, changePassword } from "../controllers/profileController.js";
-import { requireAuth, requireCustomer } from "../middleware/auth.js";
+import { serviceRequestController } from "../controllers/servicerequestcontroller.js";
+import { requireAuth, requireCustomer, requireRole } from "../middleware/auth.js";
 const router = express.Router();
 router.get("/", homePage);
-router.get("/request/:service(catering|delivery)", serviceRequest);
 router.get("/menu", productcontroller.menu);
 router.get("/menu/:id", productcontroller.detail);
+router.get("/request/catering", requireCustomer, serviceRequestController.cateringForm);
+router.post("/request/catering", requireCustomer, serviceRequestController.createCatering);
+router.get("/request/delivery", requireCustomer, serviceRequestController.deliveryForm);
+router.post("/request/delivery", requireCustomer, serviceRequestController.createDelivery);
+router.get("/my-requests", requireCustomer, serviceRequestController.listCustomerRequests);
+router.get("/admin/requests/catering", requireRole("admin"), serviceRequestController.adminCateringRequests);
+router.get("/admin/requests/delivery", requireRole("admin"), serviceRequestController.adminDeliveryRequests);
+router.post("/admin/requests/:type(catering|delivery)/:id/status", requireRole("admin"), serviceRequestController.updateRequestStatus);
+router.get("/staff/requests/catering", requireRole(["staff", "admin"]), serviceRequestController.staffCateringRequests);
+router.get("/staff/requests/delivery", requireRole(["staff", "admin"]), serviceRequestController.staffDeliveryRequests);
 router.get("/cart", requireCustomer, cartController.cartPage);
 router.post("/cart/items/:id", requireCustomer, cartController.addToCart);
 router.post("/cart/items/:id/increase", requireCustomer, cartController.increaseCartItem);

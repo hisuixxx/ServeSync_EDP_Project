@@ -28,11 +28,3 @@ export const homePage = (req, res) => {
     title: "ServeSync | Digital dining, made simple",
   });
 };
-
-export const serviceRequest = (req, res) => {
-  const service = req.params.service === "delivery" ? "Delivery" : "Catering";
-  res.render("request", {
-    title: `ServeSync | Request ${service}`,
-    service,
-  });
-};

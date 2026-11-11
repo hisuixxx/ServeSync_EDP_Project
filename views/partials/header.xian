@@ -11,6 +11,17 @@
       </div>
       {{#if isCustomer}}
         <a class="servesync-button servesync-button-ghost" href="/cart">View cart</a>
+        <a class="servesync-button servesync-button-ghost" href="/my-requests">My requests</a>
+        <a class="servesync-button servesync-button-ghost" href="/request/catering">Catering</a>
+        <a class="servesync-button servesync-button-ghost" href="/request/delivery">Delivery</a>
+      {{/if}}
+      {{#if isAdmin}}
+        <a class="servesync-button servesync-button-ghost" href="/admin/requests/catering">Catering requests</a>
+        <a class="servesync-button servesync-button-ghost" href="/admin/requests/delivery">Delivery requests</a>
+      {{/if}}
+      {{#if isStaff}}
+        <a class="servesync-button servesync-button-ghost" href="/staff/requests/catering">Catering schedule</a>
+        <a class="servesync-button servesync-button-ghost" href="/staff/requests/delivery">Delivery schedule</a>
       {{/if}}
       <a class="servesync-button servesync-button-primary" href="/logout">Log out</a>
     {{else if hideGuestAuth}}
