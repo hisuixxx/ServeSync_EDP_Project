@@ -13,6 +13,9 @@
       <div class="servesync-kicker">{{ product.category.category_name }}</div>
       <h1>{{ product.product_name }}</h1>
       <p class="servesync-detail-description">{{ product.description }}</p>
+      {{#if cartMessage}}
+        <p class="servesync-cart-message servesync-cart-message-{{ cartMessageType }}" role="status">{{ cartMessage }}</p>
+      {{/if}}
       <div class="servesync-detail-meta">
         <span class="servesync-detail-price">&#8369;{{ product.price }}</span>
         {{#if product.availability}}
@@ -22,16 +25,14 @@
         {{/if}}
       </div>
       <div class="servesync-detail-actions">
-        {{#if isAuthenticated}}
-          {{#if product.availability}}
-            <form method="POST" action="/cart/items/{{ product.id }}">
-              <button class="servesync-button servesync-button-primary" type="submit">Add to cart</button>
-            </form>
-          {{else}}
-            <button class="servesync-button servesync-button-ghost" type="button" disabled>Unavailable</button>
-          {{/if}}
+        {{#if product.availability}}
+          <form class="servesync-add-cart-form" method="POST" action="/cart/items/{{ product.id }}">
+            <label class="servesync-quantity-label" for="product-quantity">Quantity</label>
+            <input class="servesync-input servesync-quantity-input" id="product-quantity" type="number" name="quantity" min="1" step="1" value="1" required />
+            <button class="servesync-button servesync-button-primary" type="submit">Add to cart</button>
+          </form>
         {{else}}
-          <a class="servesync-button servesync-button-primary" href="/login">Log in to order</a>
+          <button class="servesync-button servesync-button-ghost" type="button" disabled>Unavailable</button>
         {{/if}}
         <a class="servesync-button servesync-button-ghost" href="/menu">Back to menu</a>
       </div>

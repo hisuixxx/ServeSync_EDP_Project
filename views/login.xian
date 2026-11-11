@@ -6,7 +6,9 @@
       <div class="servesync-kicker">Welcome back</div>
       <h1>Sign in to ServeSync.</h1>
       <p>Pick up where you left off and keep your next order close.</p>
+      {{#if authMessage}}<p class="servesync-form-error" role="alert">{{ authMessage }}</p>{{/if}}
       {{#if error}}<p class="servesync-form-error" role="alert">{{ error }}</p>{{/if}}
+      <input type="hidden" name="returnTo" value="{{ returnTo }}" />
       <label class="servesync-form-field">Email
         <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
       </label>
@@ -14,7 +16,7 @@
         <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Sign In</button>
-      <p class="servesync-auth-switch">New to ServeSync? <a href="/register">Create an account</a></p>
+      <p class="servesync-auth-switch">New to ServeSync? <a href="/register?returnTo={{ returnTo }}">Create an account</a></p>
     </form>
   </main>
 {{> footer }}

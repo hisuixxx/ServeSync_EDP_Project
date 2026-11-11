@@ -9,6 +9,9 @@
         <strong>Welcome, {{ currentUser.full_name }}</strong>
         <span>{{ currentUser.email }} &middot; {{ currentUser.status }}</span>
       </div>
+      {{#if isCustomer}}
+        <a class="servesync-button servesync-button-ghost" href="/cart">View cart</a>
+      {{/if}}
       <a class="servesync-button servesync-button-primary" href="/logout">Log out</a>
     {{else if hideGuestAuth}}
     {{else}}

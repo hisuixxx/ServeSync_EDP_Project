@@ -27,7 +27,7 @@
 import express from "express";
 import { homePage, serviceRequest } from "../controllers/homeController.js";
 import { productcontroller } from "../controllers/productcontroller.js";
-import { addToCart, cartPage, placeOrder } from "../controllers/cartController.js";
+import { cartController } from "../controllers/cartController.js";
 import { profilePage, updateProfile, changePassword } from "../controllers/profileController.js";
 import { requireAuth, requireCustomer } from "../middleware/auth.js";
 const router = express.Router();
@@ -35,9 +35,12 @@ router.get("/", homePage);
 router.get("/request/:service(catering|delivery)", serviceRequest);
 router.get("/menu", productcontroller.menu);
 router.get("/menu/:id", productcontroller.detail);
-router.get("/cart", requireCustomer, cartPage);
-router.post("/cart/items/:id", requireCustomer, addToCart);
-router.post("/cart/order", requireCustomer, placeOrder);
+router.get("/cart", requireCustomer, cartController.cartPage);
+router.post("/cart/items/:id", requireCustomer, cartController.addToCart);
+router.post("/cart/items/:id/increase", requireCustomer, cartController.increaseCartItem);
+router.post("/cart/items/:id/decrease", requireCustomer, cartController.decreaseCartItem);
+router.post("/cart/items/:id/remove", requireCustomer, cartController.removeCartItem);
+router.post("/cart/order", requireCustomer, cartController.placeOrder);
 
 import { loginPage, registerPage, forgotPasswordPage, dashboardPage, loginUser, registerUser, logoutUser } from "../controllers/authController.js";
 

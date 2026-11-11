@@ -34,9 +34,23 @@ const regenerateSession = (req) => new Promise((resolve, reject) => {
 });
 
 const authView = (view, title, data = {}) => ({ title: `ServeSync | ${title}`, ...data });
+const safeReturnTo = (value) => {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
+    return "";
+  }
+  return value;
+};
 
-export const loginPage = (req, res) => res.render("login", authView("login", "Sign in"));
-export const registerPage = (req, res) => res.render("register", authView("register", "Create account"));
+export const loginPage = (req, res) => {
+  const authMessage = req.session.authMessage || null;
+  const returnTo = safeReturnTo(req.query.returnTo) || safeReturnTo(req.session.returnTo);
+  delete req.session.authMessage;
+  res.render("login", authView("login", "Sign in", { authMessage, returnTo }));
+};
+export const registerPage = (req, res) => {
+  const returnTo = safeReturnTo(req.query.returnTo) || safeReturnTo(req.session.returnTo);
+  res.render("register", authView("register", "Create account", { returnTo }));
+};
 export const forgotPasswordPage = (req, res) => res.render("forgotpassword", { title: "Forgot Password" });
 export const dashboardPage = (req, res) => {
   res.render("dashboard", authView("dashboard", "Account", { user: req.user }));
@@ -45,20 +59,28 @@ export const dashboardPage = (req, res) => {
 export const loginUser = async (req, res) => {
   const email = String(req.body.email || "").trim().toLowerCase();
   const password = String(req.body.password || "");
+  const returnTo = safeReturnTo(req.body.returnTo) || safeReturnTo(req.session.returnTo);
   const user = await User.findOne({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
-    return res.status(401).render("login", authView("login", "Sign in", { error: "The email or password is incorrect." }));
+    return res.status(401).render("login", authView("login", "Sign in", {
+      error: "The email or password is incorrect.",
+      authMessage: req.session.authMessage || null,
+      returnTo,
+    }));
   }
   if (user.status !== "active") {
-    return res.status(403).render("login", authView("login", "Sign in", { error: "This account is inactive. Please contact support." }));
+    return res.status(403).render("login", authView("login", "Sign in", {
+      error: "This account is inactive. Please contact support.",
+      returnTo,
+    }));
   }
 
   try {
     await regenerateSession(req);
     req.session.userId = user.id;
     req.session.userRole = user.role;
-    res.redirect("/dashboard");
+    res.redirect(returnTo || "/dashboard");
   } catch (error) {
     res.status(500).render("login", authView("login", "Sign in", { error: "Unable to start your session. Please try again." }));
   }
@@ -69,6 +91,7 @@ export const registerUser = async (req, res) => {
   const email = String(req.body.email || "").trim().toLowerCase();
   const password = String(req.body.password || "");
   const confirmPassword = String(req.body.confirmPassword || "");
+  const returnTo = safeReturnTo(req.body.returnTo) || safeReturnTo(req.session.returnTo);
   const errors = [];
 
   if (!fullName) errors.push("Full name is required.");
@@ -76,7 +99,11 @@ export const registerUser = async (req, res) => {
   if (password.length < 12) errors.push("Password must be at least 12 characters.");
   if (password !== confirmPassword) errors.push("Passwords do not match.");
   if (errors.length) {
-    return res.status(400).render("register", authView("register", "Create account", { errors, form: { fullName, email } }));
+    return res.status(400).render("register", authView("register", "Create account", {
+      errors,
+      form: { fullName, email },
+      returnTo,
+    }));
   }
 
   const existingUser = await User.findOne({ where: { email } });
@@ -84,6 +111,7 @@ export const registerUser = async (req, res) => {
     return res.status(409).render("register", authView("register", "Create account", {
       errors: ["An account with that email already exists."],
       form: { fullName, email },
+      returnTo,
     }));
   }
 
@@ -99,7 +127,7 @@ export const registerUser = async (req, res) => {
   await regenerateSession(req);
   req.session.userId = user.id;
   req.session.userRole = "customer";
-  res.redirect("/dashboard");
+  res.redirect(returnTo || "/dashboard");
 };
 
 export const logoutUser = (req, res) => {

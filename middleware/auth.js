@@ -27,6 +27,7 @@ import { User } from "../models/userModel.js";
 
 export const loadCurrentUser = async (req, res, next) => {
   res.locals.currentUser = null;
+  res.locals.isCustomer = false;
 
   if (!req.session.userId) return next();
 
@@ -40,6 +41,7 @@ export const loadCurrentUser = async (req, res, next) => {
 
     req.user = user;
     res.locals.currentUser = user;
+    res.locals.isCustomer = user.role === "customer";
     res.locals.isAuthenticated = true;
     next();
   } catch (error) {
@@ -48,7 +50,18 @@ export const loadCurrentUser = async (req, res, next) => {
 };
 
 export const requireAuth = async (req, res, next) => {
-  if (!req.session.userId) return res.redirect("/login");
+  if (!req.session.userId) {
+    const returnTo = req.originalUrl;
+    if (returnTo.startsWith("/") && !returnTo.startsWith("//")) {
+      req.session.returnTo = returnTo.startsWith("/cart/items/")
+        ? `/menu/${req.params.id}`
+        : returnTo;
+    }
+    req.session.authMessage = returnTo.startsWith("/cart/items/")
+      ? "You must create an account or log in before adding items to your cart."
+      : "Please log in or create an account to continue.";
+    return res.redirect("/login");
+  }
 
   try {
     const user = req.user || await User.findByPk(req.session.userId);
@@ -71,7 +84,7 @@ export const requireRole = (role) => [
     const allowed = Array.isArray(role) ? role : [role];
 
     if (!req.user || !allowed.includes(req.user.role)) {
-      req.session.success = "You do not have permission to perform this action.";
+      req.session.authMessage = "You do not have permission to perform this action.";
       return res.redirect("/login");
     }
 
