@@ -53,7 +53,9 @@ export const registerPage = (req, res) => {
 };
 export const forgotPasswordPage = (req, res) => res.render("forgotpassword", { title: "Forgot Password" });
 export const dashboardPage = (req, res) => {
-  res.render("dashboard", authView("dashboard", "Account", { user: req.user }));
+  if (req.user?.role === "admin") return res.redirect("/admin");
+  if (req.user?.role === "staff") return res.redirect("/staff");
+  return res.redirect("/profile");
 };
 
 export const loginUser = async (req, res) => {

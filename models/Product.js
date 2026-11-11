@@ -35,7 +35,9 @@ export const Product = sequelize.define("Product", {
   image: { type: DataTypes.STRING(255), allowNull: true },
   availability: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
   status: { type: DataTypes.ENUM("active", "archived"), allowNull: false, defaultValue: "active" },
-}, {
+   archived_at: { type: DataTypes.DATE, allowNull: true },
+   archived_by: { type: DataTypes.INTEGER, allowNull: true },
+}, {   
   tableName: "Products",
 });
 

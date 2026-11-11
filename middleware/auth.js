@@ -25,6 +25,7 @@
 
 import { User } from "../models/userModel.js";
 
+
 export const loadCurrentUser = async (req, res, next) => {
   res.locals.currentUser = null;
   res.locals.isCustomer = false;
@@ -91,8 +92,7 @@ export const requireRole = (role) => [
     const allowed = Array.isArray(role) ? role : [role];
 
     if (!req.user || !allowed.includes(req.user.role)) {
-      req.session.authMessage = "You do not have permission to perform this action.";
-      return res.redirect("/login");
+      return res.status(403).render("not-found", { title: "ServeSync | Access denied", message: "You do not have permission to access this page." });
     }
 
     next();

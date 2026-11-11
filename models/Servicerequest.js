@@ -32,11 +32,11 @@ import { sequelize } from "./db.js";
 
 export const Servicerequest = sequelize.define("servicerequest", {
 
-  FirstName: { type: DataTypes.STRING, allowNull: false },
-  LastName: { type: DataTypes.STRING, allowNull: false },
-  MiddleName: { type: DataTypes.STRING, allowNull: false },
-  Program: { type: DataTypes.STRING, allowNull: false },
-  YearLevel: { type: DataTypes.STRING, allowNull: false },
-  Section: { type: DataTypes.STRING, allowNull: false },
-});
+   id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  customer_id: { type: DataTypes.INTEGER, allowNull: false },
+  request_type: { type: DataTypes.STRING(30), allowNull: false },
+  details: { type: DataTypes.TEXT, allowNull: false },
+  status: { type: DataTypes.STRING(30), allowNull: false, defaultValue: "pending" },
+}, { tableName: "LegacyServiceRequests" });
+
 export { sequelize };
