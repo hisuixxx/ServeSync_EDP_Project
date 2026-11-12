@@ -1,7 +1,8 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-detail">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-detail">
     <div class="servesync-detail-image">
       {{#if product.image}}
         <img src="{{ product.image }}" alt="{{ product.product_name }}" />
@@ -37,5 +38,6 @@
         <a class="servesync-button servesync-button-ghost" href="/menu">Back to menu</a>
       </div>
     </article>
-  </main>
+    </main>
+  </div>
   {{> footer }}

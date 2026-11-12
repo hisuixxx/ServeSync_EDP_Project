@@ -1,5 +1,65 @@
-{{> head}}
+{{> head }}
 <body class="servesync-body">
-  {{> header}}
-  <main class="servesync-shell servesync-account-page" aria-label="Account page"></main>
+<div class="ss-admin-layout">
+  {{> admin-sidebar}}
+  <main class="ss-admin-main">
+    {{> flash-messages}}
+    
+    <header class="ss-admin-top">
+      <div>
+        <span class="servesync-kicker">ADMINISTRATION</span>
+        <h1>Dashboard</h1>
+      </div>
+      <span>Welcome, {{currentUser.full_name}}</span>
+    </header>
+
+    <section class="ss-stat-grid">
+      <article><span>Active Products</span><strong>{{stats.products}}</strong></article>
+      <article><span>Archived Products</span><strong>{{stats.archived}}</strong></article>
+      <article><span>Customers</span><strong>{{stats.users}}</strong></article>
+      <article><span>Total Orders</span><strong>{{stats.orders}}</strong></article>
+      <article><span>Pending Orders</span><strong>{{stats.pendingOrders}}</strong></article>
+      <article><span>Pending Payments</span><strong>{{stats.pendingPayments}}</strong></article>
+      <article><span>Catering Requests</span><strong>{{stats.catering}}</strong></article>
+      <article><span>Delivery Requests</span><strong>{{stats.delivery}}</strong></article>
+    </section>
+
+    <section class="ss-panel">
+      <h2>Recent Orders</h2>
+      <div class="ss-table-wrap">
+        <table class="ss-table" data-table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each recentOrders}}
+            <tr>
+              <td>{{order_number}}</td>
+              <td>{{customer.full_name}}</td>
+              <td>₱{{total_amount}}</td>
+              <td>{{status}}</td>
+              <td>{{createdAt}}</td>
+              <td><a href="/admin/orders/{{id}}">View</a></td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="6">No orders yet.</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/admin.js">
+  
+</script>
 {{> footer }}

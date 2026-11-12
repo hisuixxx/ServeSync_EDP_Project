@@ -1,15 +1,12 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-page">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
     <div class="servesync-page-heading">
       <div>
         <div class="servesync-kicker">Your service requests</div>
         <h1>Request history.</h1>
-      </div>
-      <div class="servesync-detail-actions">
-        <a class="servesync-button servesync-button-ghost" href="/request/catering">Request catering</a>
-        <a class="servesync-button servesync-button-primary" href="/request/delivery">Request delivery</a>
       </div>
     </div>
     {{#if success_msg}}<div class="servesync-form-success" role="status">{{ success_msg }}</div>{{/if}}
@@ -80,5 +77,6 @@
         <p class="servesync-empty">You have not submitted any delivery requests.</p>
       {{/if}}
     </section>
-  </main>
+    </main>
+  </div>
   {{> footer }}

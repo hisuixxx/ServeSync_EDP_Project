@@ -1,0 +1,31 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
+    {{> flash-messages}}
+
+    <h1>Notifications</h1>
+
+    {{#each notifications}}
+      <article class="ss-panel">
+        <strong>{{title}}</strong>
+        <p>{{message}}</p>
+        <small>{{createdAt}}</small>
+
+        {{#unless is_read}}
+          <form method="post" action="/my-notifications/{{id}}/read">
+            <button class="ss-small-button">Mark as read</button>
+          </form>
+        {{/unless}}
+
+        {{#if link}}
+          <a href="{{link}}">Open</a>
+        {{/if}}
+      </article>
+    {{else}}
+      <p>No notifications yet.</p>
+    {{/each}}
+    </main>
+  </div>
+{{> footer }}

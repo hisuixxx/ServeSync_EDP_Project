@@ -30,7 +30,7 @@
 import { sequelize } from "./db.js";
 
 
-export const Orderitem = sequelize.define("orderitem", {
+export const OrderItem = sequelize.define("orderitem", {
 
  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
   order_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -41,4 +41,3 @@ export const Orderitem = sequelize.define("orderitem", {
   subtotal: { type: DataTypes.DECIMAL(10,2), allowNull: false },
 }, { tableName: "OrderItems" });
 
-export { sequelize };

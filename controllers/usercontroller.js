@@ -33,7 +33,7 @@ export const adminUsers = async (req, res) => {
     const where = {};
     if (search) where[Op.or] = [{ full_name: { [Op.like]: `%${search}%` } }, { email: { [Op.like]: `%${search}%` } }];
     const users = await User.findAll({ where, attributes: { exclude: ["password"] }, order: [["createdAt", "DESC"]], limit: 300 });
-    res.render("admin/users", { title: "ServeSync Admin | User Management", users: users.map(x => ({ ...x.get({ plain: true }), isCustomer: x.role === "customer", isStaff: x.role === "staff", isAdmin: x.role === "admin", isActive: x.status === "active", isInactive: x.status === "inactive" })), search });
+    res.render("admin/user", { title: "ServeSync Admin | User Management", users: users.map(x => ({ ...x.get({ plain: true }), isCustomer: x.role === "customer", isStaff: x.role === "staff", isAdmin: x.role === "admin", isActive: x.status === "active", isInactive: x.status === "inactive" })), search });
   } catch (error) { console.error("User list:", error); res.status(500).send("Unable to load users."); }
 };
 
@@ -75,4 +75,3 @@ export const adminDeleteUser = async (req, res) => {
   res.redirect("/admin/users");
 };
 
-export { usercontroller };

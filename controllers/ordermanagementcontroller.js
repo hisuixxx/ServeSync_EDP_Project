@@ -102,4 +102,3 @@ export const adminPaymentReceipt = async (req, res) => {
   } catch { return res.status(404).send("Receipt not found."); }
 };
 
-export { ordermanagementcontroller };

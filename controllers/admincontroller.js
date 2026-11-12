@@ -107,4 +107,3 @@ export const adminUpdateCategory = async (req, res) => {
   await category.update({ category_name: name, description: String(req.body.description || "").trim(), status: req.body.status === "inactive" ? "inactive" : "active" }); req.flash("success_msg", "Category updated."); res.redirect("/admin/categories");
 };
 
-export { admincontroller };

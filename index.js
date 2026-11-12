@@ -40,6 +40,8 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+hbs.registerHelper("eq", (left, right) => left === right);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
@@ -108,6 +110,7 @@ fs.readdir(partialsDir, (err, files) => {
           return;
         }
         hbs.registerPartial(partialName, content);
+        if (partialName === "flash-message") hbs.registerPartial("flash-messages", content);
         
       });
     });

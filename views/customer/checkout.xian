@@ -1,0 +1,93 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
+    {{> flash-messages}}
+
+    <div class="servesync-page-heading">
+      <div>
+        <div class="servesync-kicker">SECURE CHECKOUT</div>
+        <h1>Review and place your order</h1>
+      </div>
+    </div>
+
+    {{#if error_msg}}
+      <p class="servesync-notice">{{error_msg}}</p>
+    {{/if}}
+
+    <section class="ss-panel">
+      <h2>Order Summary</h2>
+      {{#each items}}
+        <p>{{product_name}} × {{quantity}} — ₱{{subtotal}}</p>
+      {{/each}}
+      <h2>Total: ₱{{total}}</h2>
+    </section>
+
+    <section class="ss-panel">
+      <h2>GCash Payment</h2>
+      <p>Account name: <strong>{{gcashName}}</strong></p>
+      <p>GCash number: <strong>{{gcashNumber}}</strong></p>
+      
+      {{#if gcashQr}}
+        <img src="{{gcashQr}}" alt="GCash QR code" class="ss-qr">
+      {{/if}}
+
+      <p>Pay the exact total and enter the transaction reference code below. Payment remains pending until verified by the administrator.</p>
+
+      <form method="post" action="/checkout/place" enctype="multipart/form-data" class="ss-form-grid">
+        <label>Order type
+          <select name="order_type" id="orderType">
+            <option value="pickup">Pickup</option>
+            <option value="delivery">Delivery</option>
+          </select>
+        </label>
+
+        <label>Contact number
+          <input name="contact_number" value="{{currentUser.phone}}">
+        </label>
+
+        <label id="deliveryAddressField" class="ss-wide" hidden>Delivery address
+          <textarea name="delivery_address"></textarea>
+        </label>
+
+        <label class="ss-wide">GCash reference code
+          <input name="reference_code" required minlength="6" maxlength="100" pattern="[A-Za-z0-9-]+" placeholder="Enter GCash reference number">
+        </label>
+
+        <label class="ss-wide">Optional GCash receipt screenshot
+          <input type="file" name="receiptFile" accept="image/jpeg,image/png,image/webp">
+        </label>
+
+        <label class="ss-wide">Order notes
+          <textarea name="notes"></textarea>
+        </label>
+
+        <div class="ss-terms ss-wide">
+          <h3>Terms and Conditions</h3>
+          <p>Orders are subject to restaurant confirmation. Submitting a GCash reference code does not guarantee payment verification or order approval. The restaurant may reject invalid payment references or unavailable orders. Customers must provide accurate contact and delivery information. Cancellation and refund requests are subject to restaurant review and applicable consumer protection laws.</p>
+          <label>
+            <input type="checkbox" name="acceptTerms" value="1" required> I have read and agree to the terms and conditions.
+          </label>
+        </div>
+
+        <button class="servesync-button servesync-button-primary" type="submit">Submit Order — ₱{{total}}</button>
+      </form>
+    </section>
+    </main>
+  </div>
+
+  <script>
+    const t = document.getElementById('orderType');
+    const a = document.getElementById('deliveryAddressField');
+
+    function syncDelivery() {
+      a.hidden = t.value !== 'delivery';
+      a.querySelector('textarea').required = t.value === 'delivery';
+    }
+
+    t.addEventListener('change', syncDelivery);
+    syncDelivery();
+  </script>
+
+{{> footer }}

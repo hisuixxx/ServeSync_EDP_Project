@@ -16,6 +16,7 @@
         <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Sign In</button>
+      <p><a href="/forgot-password">Forgot password?</a></p>
       <p class="servesync-auth-switch">New to ServeSync? <a href="/register?returnTo={{ returnTo }}">Create an account</a></p>
     </form>
   </main>

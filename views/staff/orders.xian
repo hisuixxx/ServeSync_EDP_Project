@@ -1,0 +1,53 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+
+    <main class="ss-admin-main">
+      {{> flash-messages}}
+
+      <h1>Operational Orders</h1>
+
+      <section class="ss-panel">
+        <div class="ss-table-wrap">
+          <table class="ss-table" data-table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Items</th>
+                <th>Status</th>
+                <th>Update</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each orders}}
+                <tr>
+                  <td>{{order_number}}</td>
+                  <td>{{customer.full_name}}</td>
+                  <td>{{items.length}}</td>
+                  <td>{{status}}</td>
+                  <td>
+                    <form method="post" action="/staff/orders/{{id}}/status">
+                      <select name="status">
+                        <option value="preparing">Preparing</option>
+                        <option value="ready">Ready</option>
+                        <option value="out_for_delivery">Out for Delivery</option>
+                      </select>
+                      <button class="ss-small-button">Update</button>
+                    </form>
+                  </td>
+                </tr>
+              {{else}}
+                <tr>
+                  <td colspan="5">No orders.</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/admin.js"></script>
+{{> footer }}

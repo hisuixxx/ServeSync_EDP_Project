@@ -1,0 +1,59 @@
+{{> head }}
+<body class="servesync-body">
+<div class="ss-admin-layout">
+  {{> admin-sidebar}}
+  <main class="ss-admin-main">
+    {{> flash-messages}}
+    
+    <h1>GCash Payments</h1>
+    
+    <section class="ss-panel">
+      <div class="ss-table-wrap">
+        <table class="ss-table" data-table>
+          <thead>
+            <tr>
+              <th>Order</th>
+              <th>Customer</th>
+              <th>Amount</th>
+              <th>Reference</th>
+              <th>Receipt</th>
+              <th>Status</th>
+              <th>Decision</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each payments}}
+            <tr>
+              <td>{{order.order_number}}</td>
+              <td>{{order.customer.full_name}}</td>
+              <td>₱{{amount}}</td>
+              <td>{{reference_code}}</td>
+              <td>
+                {{#if receipt_image}}
+                  <a href="/admin/payments/{{id}}/receipt" target="_blank" rel="noopener">View receipt</a>
+                {{else}}
+                  Not uploaded
+                {{/if}}
+              </td>
+              <td>{{status}}</td>
+              <td>
+                <form method="post" action="/admin/payments/{{id}}/verify" class="ss-payment-form">
+                  <input name="remarks" placeholder="Remarks">
+                  <button name="status" value="verified" class="ss-small-button">Verify</button>
+                  <button name="status" value="rejected" class="ss-small-button ss-danger">Reject</button>
+                </form>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="7">No payments found.</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="/js/admin.js"></script>
+{{> footer }}

@@ -1,0 +1,44 @@
+<aside class="ss-sidebar" aria-label="Account navigation">
+  {{#if isAdmin}}
+    <a class="ss-brand" href="/admin">SERVESYNC <small>ADMIN</small></a>
+    <span class="ss-sidebar-label">Workspace</span>
+    <nav>
+      <a href="/admin">Dashboard</a><a href="/admin/products">Products</a>
+      <a href="/admin/categories">Categories</a><a href="/admin/archive">Archive</a>
+      <a href="/admin/orders">Orders</a><a href="/admin/payments">Payments</a>
+      <a href="/admin/requests/catering">Catering requests</a><a href="/admin/requests/delivery">Delivery requests</a>
+      <a href="/admin/users">User management</a><a href="/menu">View store</a>
+      <a class="ss-sidebar-logout" href="/logout">Log out</a>
+    </nav>
+  {{else if isStaff}}
+    <a class="ss-brand" href="/staff">SERVESYNC <small>STAFF</small></a>
+    <span class="ss-sidebar-label">Workspace</span>
+    <nav>
+      <a href="/staff">Dashboard</a><a href="/staff/products">Products</a>
+      <a href="/staff/orders">Orders</a><a href="/staff/requests/catering">Catering</a>
+      <a href="/staff/requests/delivery">Delivery</a>
+      <a class="ss-sidebar-logout" href="/logout">Log out</a>
+    </nav>
+  {{else}}
+    <a class="ss-brand" href="/menu">SERVESYNC <small>CUSTOMER</small></a>
+    <span class="ss-sidebar-label">My account</span>
+    <nav>
+      <a href="/menu">Browse menu</a><a href="/cart">Cart</a>
+      <a href="/my-orders">My orders</a><a href="/my-requests">My requests</a>
+      <a href="/request/catering">Request catering</a><a href="/request/delivery">Request delivery</a>
+      <a href="/my-notifications">Notifications</a><a href="/profile">Profile</a>
+      <a class="ss-sidebar-logout" href="/logout">Log out</a>
+    </nav>
+  {{/if}}
+</aside>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const currentPath = window.location.pathname;
+    document.querySelectorAll(".ss-sidebar nav a").forEach((link) => {
+      const linkPath = new URL(link.href, window.location.origin).pathname;
+      if (currentPath === linkPath || (linkPath !== "/" && currentPath.startsWith(`${linkPath}/`))) {
+        link.classList.add("is-active");
+      }
+    });
+  });
+</script>

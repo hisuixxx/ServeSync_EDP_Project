@@ -1,0 +1,41 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
+    <a href="/my-orders">← My orders</a>
+    <h1>Order {{order.order_number}}</h1>
+
+    {{#if success_msg}}
+      <p class="servesync-notice">{{success_msg}}</p>
+    {{/if}}
+
+    {{#if error_msg}}
+      <p class="servesync-notice">{{error_msg}}</p>
+    {{/if}}
+
+    <section class="ss-panel">
+      <p>Order status: <strong>{{order.status}}</strong></p>
+      <p>Payment status: <strong>{{order.payment.status}}</strong></p>
+      <p>GCash reference: {{order.payment.reference_code}}</p>
+      <p>Total: ₱{{order.total_amount}}</p>
+
+      <h2>Items</h2>
+      <ul>
+        {{#each order.items}}
+          <li>{{product_name}} × {{quantity}} — ₱{{subtotal}}</li>
+        {{/each}}
+      </ul>
+
+      <h2>Order Progress</h2>
+      <ol class="ss-timeline">
+        <li>Submitted — pending</li>
+        <li>Approved — when accepted by the restaurant</li>
+        <li>Preparing — being prepared</li>
+        <li>Ready for pickup / Out for delivery</li>
+        <li>Completed</li>
+      </ol>
+    </section>
+    </main>
+  </div>
+{{> footer }}

@@ -26,17 +26,17 @@
   // Use Firestore directly in controllers or create helper functions here.
   // Collection name: "auditlog"
 
-  import { DataTypes } from "sequelize";
+ import { DataTypes } from "sequelize";
 import { sequelize } from "./db.js";
 
+export const Auditlog = sequelize.define("Auditlog", {
+  id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+  user_id: { type: DataTypes.INTEGER, allowNull: true },
+  action: { type: DataTypes.STRING(100), allowNull: false },
+  entity_type: { type: DataTypes.STRING(80), allowNull: false },
+  entity_id: { type: DataTypes.INTEGER, allowNull: true },
+  details: { type: DataTypes.JSON, allowNull: true },
+  ip_address: { type: DataTypes.STRING(64), allowNull: true },
+}, { tableName: "AuditLogs", updatedAt: false });
 
-export const Auditlog = sequelize.define("auditlog", {
-
-  FirstName: { type: DataTypes.STRING, allowNull: false },
-  LastName: { type: DataTypes.STRING, allowNull: false },
-  MiddleName: { type: DataTypes.STRING, allowNull: false },
-  Program: { type: DataTypes.STRING, allowNull: false },
-  YearLevel: { type: DataTypes.STRING, allowNull: false },
-  Section: { type: DataTypes.STRING, allowNull: false },
-});
 export { sequelize };

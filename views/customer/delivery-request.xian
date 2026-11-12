@@ -1,7 +1,8 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-page">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
     <div class="servesync-page-heading">
       <div>
         <div class="servesync-kicker">Delivery request</div>
@@ -37,9 +38,9 @@
         <textarea class="servesync-textarea" name="specialInstructions" maxlength="5000">{{ form.specialInstructions }}</textarea>
       </label>
       <div class="servesync-request-actions">
-        <a class="servesync-button servesync-button-ghost" href="/my-requests">My requests</a>
         <button class="servesync-button servesync-button-primary" type="submit">Submit delivery request</button>
       </div>
     </form>
-  </main>
+    </main>
+  </div>
   {{> footer }}

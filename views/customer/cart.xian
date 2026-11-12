@@ -1,7 +1,8 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-page">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
     <div class="servesync-page-heading">
       <div>
         <div class="servesync-kicker">Your cart</div>
@@ -70,5 +71,6 @@
         <a class="servesync-button servesync-button-primary" href="/menu">Explore menu</a>
       </div>
     {{/if}}
-  </main>
+    </main>
+  </div>
   {{> footer }}

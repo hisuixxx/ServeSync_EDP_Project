@@ -33,7 +33,7 @@ export const customerOrderDetail = async (req, res) => {
   catch (error) { console.error(error); res.status(500).send("Unable to load order."); }
 };
 export const customerNotifications = async (req, res) => {
-  try { const notifications = await Notification.findAll({ where: { user_id: req.user.id }, order: [["createdAt", "DESC"]], limit: 100 }); res.render("customer/notifications", { title: "ServeSync | Notifications", notifications: notifications.map(n => n.get({ plain: true })) }); }
+  try { const notifications = await Notification.findAll({ where: { user_id: req.user.id }, order: [["createdAt", "DESC"]], limit: 100 }); res.render("customer/notification", { title: "ServeSync | Notifications", notifications: notifications.map(n => n.get({ plain: true })) }); }
   catch (error) { console.error(error); res.status(500).send("Unable to load notifications."); }
 };
 export const markNotificationRead = async (req, res) => {

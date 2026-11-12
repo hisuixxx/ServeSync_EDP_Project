@@ -4,7 +4,7 @@ import { User } from "../models/userModel.js";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const profilePage = (req, res) => {
-  res.render("profile", {
+  res.render("customer/profile", {
     title: "ServeSync | Your profile",
     user: req.user,
   });
@@ -16,7 +16,7 @@ export const updateProfile = async (req, res) => {
   const phone = String(req.body.phone || "").trim() || null;
 
   if (!fullName || !emailPattern.test(email)) {
-    return res.status(400).render("profile", {
+    return res.status(400).render("customer/profile", {
       title: "ServeSync | Your profile",
       user: { ...req.user.get({ plain: true }), full_name: fullName, email, phone },
       profileError: "Enter a full name and valid email address.",
@@ -25,7 +25,7 @@ export const updateProfile = async (req, res) => {
 
   const duplicate = await User.findOne({ where: { email } });
   if (duplicate && duplicate.id !== req.user.id) {
-    return res.status(409).render("profile", {
+    return res.status(409).render("customer/profile", {
       title: "ServeSync | Your profile",
       user: { ...req.user.get({ plain: true }), full_name: fullName, email, phone },
       profileError: "That email address is already in use.",
@@ -33,7 +33,7 @@ export const updateProfile = async (req, res) => {
   }
 
   await req.user.update({ full_name: fullName, email, phone });
-  res.render("profile", { title: "ServeSync | Your profile", user: req.user, profileSuccess: "Profile updated successfully." });
+  res.render("customer/profile", { title: "ServeSync | Your profile", user: req.user, profileSuccess: "Profile updated successfully." });
 };
 
 export const changePassword = async (req, res) => {
@@ -43,7 +43,7 @@ export const changePassword = async (req, res) => {
   const matches = await bcrypt.compare(currentPassword, req.user.password);
 
   if (!matches || newPassword.length < 12 || newPassword !== confirmPassword) {
-    return res.status(400).render("profile", {
+    return res.status(400).render("customer/profile", {
       title: "ServeSync | Your profile",
       user: req.user,
       passwordError: !matches ? "Current password is incorrect." : "New passwords must match and be at least 12 characters.",
@@ -52,5 +52,5 @@ export const changePassword = async (req, res) => {
 
   req.user.password = await bcrypt.hash(newPassword, 12);
   await req.user.save();
-  res.render("profile", { title: "ServeSync | Your profile", user: req.user, passwordSuccess: "Password changed successfully." });
+  res.render("customer/profile", { title: "ServeSync | Your profile", user: req.user, passwordSuccess: "Password changed successfully." });
 };

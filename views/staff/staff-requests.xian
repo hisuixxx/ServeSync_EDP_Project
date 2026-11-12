@@ -1,15 +1,12 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-page">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
     <div class="servesync-page-heading">
       <div>
         <div class="servesync-kicker">Approved requests · Staff operations</div>
         <h1>{{ requestType }} schedule.</h1>
-      </div>
-      <div class="servesync-detail-actions">
-        <a class="servesync-button servesync-button-ghost" href="/staff/requests/catering">Catering</a>
-        <a class="servesync-button servesync-button-ghost" href="/staff/requests/delivery">Delivery</a>
       </div>
     </div>
     {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
@@ -46,5 +43,6 @@
     {{else}}
       <p class="servesync-empty">There are no approved {{ requestType }} requests at this time.</p>
     {{/if}}
-  </main>
+    </main>
+  </div>
   {{> footer }}

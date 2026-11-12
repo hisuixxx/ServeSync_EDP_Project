@@ -1,0 +1,42 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">
+    {{> flash-messages}}
+
+    <h1>My Orders</h1>
+
+    <section class="ss-panel">
+      <table class="ss-table" data-table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Order Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each orders}}
+            <tr>
+              <td>{{order_number}}</td>
+              <td>{{createdAt}}</td>
+              <td>₱{{total_amount}}</td>
+              <td>{{payment.status}}</td>
+              <td>{{status}}</td>
+              <td><a href="/my-orders/{{id}}">Track</a></td>
+            </tr>
+          {{else}}
+            <tr>
+              <td colspan="6">You have not placed an order yet.</td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </section>
+    </main>
+  </div>
+{{> footer }}

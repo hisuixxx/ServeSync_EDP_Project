@@ -119,4 +119,3 @@ export const placeCheckoutOrder = async (req, res) => {
   }
 };
 
-export { checkoutcontroller };

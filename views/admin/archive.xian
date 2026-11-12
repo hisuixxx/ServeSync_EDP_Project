@@ -1,0 +1,48 @@
+{{> head }}
+<body class="servesync-body">
+    <div class="ss-admin-layout">
+        {{> admin-sidebar}}
+        <main class="ss-admin-main">
+            {{> flash-messages}}
+            <header class="ss-admin-top">
+                <div><span class="servesync-kicker">CATALOG</span>
+                    <h1>Product Archive</h1>
+                </div><a href="/admin/products">Back to Products</a></header>
+                <section class="ss-panel">
+                    <input class="ss-table-search" data-table-search placeholder="Search archived products">
+                    <div class="ss-table-wrap">
+                        <table class="ss-table" data-table>
+                            <thead><tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Archived At</th>
+                                <th>Action</th>
+                            </tr></thead>
+                            <tbody>
+                                {{#each products}}
+                                <tr>
+                                    <td>{{product_name}}</td>
+                                    <td>{{category.category_name}}</td>
+                                    <td>₱{{price}}</td>
+                                    <td>{{archived_at}}</td>
+                                    <td><form method="post" action="/admin/archive/{{id}}/restore">
+                                        <button class="ss-small-button">Restore</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {{else}}
+                            <tr>
+                                <td colspan="5">Archive is empty.</td>
+                            </tr>
+                            {{/each}}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="/js/admin.js">
+
+    </script>
+    {{> footer }}

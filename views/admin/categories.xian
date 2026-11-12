@@ -1,0 +1,60 @@
+{{> head }}
+<body class="servesync-body">
+<div class="ss-admin-layout">
+  {{> admin-sidebar}}
+  <main class="ss-admin-main">
+    {{> flash-messages}}
+    <h1>Categories</h1>
+    
+    <section class="ss-panel">
+      <form method="post" action="/admin/categories" class="ss-form-grid">
+        <label>Category name<input name="category_name" required></label>
+        <label>Description<input name="description"></label>
+        <button class="servesync-button servesync-button-primary">Add Category</button>
+      </form>
+    </section>
+
+    <section class="ss-panel">
+      <table class="ss-table" data-table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Products</th>
+            <th>Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each categories}}
+          <!-- FIX: Removed colspan="4" and split fields into individual <td> cells -->
+          <tr>
+            <form method="post" action="/admin/categories/{{id}}/update" class="ss-inline-edit" id="form-cat-{{id}}"></form>
+            <td>
+              <input name="category_name" value="{{category_name}}" form="form-cat-{{id}}">
+            </td>
+            <td>
+              <input name="description" value="{{description}}" form="form-cat-{{id}}">
+            </td>
+            <td>
+              <span>{{productCount}}</span>
+            </td>
+            <td>
+              <select name="status" form="form-cat-{{id}}">
+                <option value="active" {{#eq status "active"}}selected{{/eq}}>Active</option>
+                <option value="inactive" {{#eq status "inactive"}}selected{{/eq}}>Inactive</option>
+              </select>
+              <button type="submit" class="ss-small-button" form="form-cat-{{id}}">Save</button>
+            </td>
+          </tr>
+          {{else}}
+          <tr>
+            <td colspan="4">No categories.</td> <!-- FIX: Corrected colspan for the empty state row -->
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
+<script src="/js/admin.js"></script>
+{{> footer }}

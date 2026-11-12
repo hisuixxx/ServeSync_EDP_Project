@@ -1,0 +1,45 @@
+{{> head }}
+<body class="servesync-body">
+<div class="ss-admin-layout">
+  {{> admin-sidebar}}
+  <main class="ss-admin-main">
+    {{> flash-messages}}
+    
+    <a href="/admin/orders">← Orders</a>
+    <h1>{{order.order_number}}</h1>
+    
+    <section class="ss-panel">
+      <p>Customer: {{order.customer.full_name}} ({{order.customer.email}})</p>
+      <p>Order type: {{order.order_type}}</p>
+      <p>Address: {{order.delivery_address}}</p>
+      <p>Total: <strong>₱{{order.total_amount}}</strong></p>
+      <p>Order status: {{order.status}}</p>
+      <p>Payment: {{order.payment.status}} / GCash / Reference: {{order.payment.reference_code}}</p>
+      
+      <h2>Items</h2>
+      <ul>
+        {{#each order.items}}
+        <li>{{product_name}} × {{quantity}} — ₱{{subtotal}}</li>
+        {{/each}}
+      </ul>
+      
+      <form method="post" action="/admin/orders/{{order.id}}/status" class="ss-form-grid">
+        <label>Update order status
+          <select name="status">
+            <option value="approved">Approve</option>
+            <option value="preparing">Preparing</option>
+            <option value="ready">Ready for Pickup</option>
+            <option value="out_for_delivery">Out for Delivery</option>
+            <option value="completed">Completed</option>
+            <option value="rejected">Reject</option>
+            <option value="cancelled">Cancel</option>
+          </select>
+        </label>
+        <button class="servesync-button servesync-button-primary">Update Status</button>
+      </form>
+      
+      <p class="ss-muted">Orders can only be approved after GCash payment is verified.</p>
+    </section>
+  </main>
+</div>
+{{> footer }}

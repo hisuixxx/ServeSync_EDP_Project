@@ -1,12 +1,20 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
+  {{> header}}
   <main class="servesync-shell servesync-page">
-    <div class="servesync-notice">
-      <div class="servesync-kicker">Nothing here yet</div>
-      <h1>That dish could not be found.</h1>
-      <p>It may have been archived or is temporarily unavailable.</p>
-      <a class="servesync-button servesync-button-primary" href="/menu">Return to menu</a>
-    </div>
-  </main>
-  {{> footer }}
+    <section class="servesync-notice">
+      <div class="servesync-kicker">SERVESYNC</div>
+      <h1>
+        {{#if message}}
+        {{message}}
+        {{else}}Page not found{{/if}}</h1>
+        
+        <p>
+          {{#if errorDescription}}
+          {{errorDescription}}
+          {{else}}The page may have moved, the item may be unavailable, or you may not have permission to view it.{{/if}}</p>
+          <a class="servesync-button servesync-button-primary" href="/menu">Return to menu</a>
+        </section>
+      
+      </main>
+      {{> footer }}

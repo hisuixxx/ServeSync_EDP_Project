@@ -1,0 +1,98 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main">
+      {{> flash-messages}}
+      
+      <header class="ss-admin-top">
+        <div>
+          <span class="servesync-kicker">ACCESS CONTROL</span>
+          <h1>User Management</h1>
+        </div>
+      </header>
+
+      <section class="ss-panel">
+        <h2>Create Staff Account</h2>
+        <form method="post" action="/admin/users/staff" class="ss-form-grid">
+          <label>Full name
+            <input name="full_name" required>
+          </label>
+          <label>Email
+            <input type="email" name="email" required>
+          </label>
+          <label>Temporary password
+            <input type="password" name="password" minlength="12" required>
+          </label>
+          <button class="servesync-button servesync-button-primary">Create Staff</button>
+        </form>
+      </section>
+
+      <section class="ss-panel">
+        <form method="get" action="/admin/users">
+          <input name="search" value="{{search}}" placeholder="Search name or email">
+          <button class="ss-small-button">Search</button>
+        </form>
+
+        <div class="ss-table-wrap">
+          <table class="ss-table" data-table>
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Role / Status</th>
+                <th>Update</th>
+                <th>Reset password</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each users}}
+              <tr>
+                <td>
+                  {{full_name}}<br>
+                  <small>{{email}}</small>
+                </td>
+                <td>
+                  {{role}} / {{status}}
+                </td>
+                <td>
+                  <form method="post" action="/admin/users/{{id}}/update" class="ss-user-edit">
+                    <input name="full_name" value="{{full_name}}" required>
+                    <input name="phone" value="{{phone}}" placeholder="Phone">
+                    <select name="role">
+                      <option value="customer" {{#if isCustomer}}selected{{/if}}>Customer</option>
+                      <option value="staff" {{#if isStaff}}selected{{/if}}>Staff</option>
+                      <option value="admin" {{#if isAdmin}}selected{{/if}}>Admin</option>
+                    </select>
+                    <select name="status">
+                      <option value="active" {{#if isActive}}selected{{/if}}>Active</option>
+                      <option value="inactive" {{#if isInactive}}selected{{/if}}>Inactive</option>
+                    </select>
+                    <button class="ss-small-button">Save</button>
+                  </form>
+                </td>
+                <td>
+                  <form method="post" action="/admin/users/{{id}}/password">
+                    <input type="password" name="new_password" minlength="12" placeholder="New password" required>
+                    <button class="ss-small-button">Reset</button>
+                  </form>
+                </td>
+                <td>
+                  <form method="post" action="/admin/users/{{id}}/delete" onsubmit="return confirm('Delete this user if no linked records exist?')">
+                    <button class="ss-small-button ss-danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+              {{else}}
+              <tr>
+                <td colspan="5">No users found.</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/admin.js"></script>
+{{> footer }}

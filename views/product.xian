@@ -1,0 +1,40 @@
+{{> head }}
+<body class="servesync-body">
+    {{#if isCustomer}}
+    <div class="ss-admin-layout">
+      {{> admin-sidebar}}
+      <main class="ss-admin-main servesync-shell servesync-page">
+    {{else}}
+    {{> header}}
+    <main class="servesync-shell servesync-page">
+    {{/if}}
+        {{> flash-messages}}
+        <a href="/menu">← Back to menu</a>
+        <section class="ss-product-detail">
+            {{#if product.image}}
+            <img src="{{product.image}}" alt="{{product.product_name}}">
+            {{else}}
+            <div class="ss-product-placeholder">ServeSync</div>
+            {{/if}}
+            <div>
+                <span class="servesync-kicker">
+                    {{product.category.category_name}}
+                </span><h1>{{product.product_name}}
+
+                </h1><p>{{product.description}}</p>
+                <h2>₱{{product.price}}</h2>
+                <p>
+                    {{#if product.availability}}Available{{else}}Currently unavailable{{/if}}
+                </p>
+                <form method="post" action="/cart/items/{{product.id}}">
+                    <label>Quantity<input type="number" name="quantity" min="1" max="99" value="1" required></label>
+                    <button class="servesync-button servesync-button-primary" type="submit">Add to Cart</button>
+                </form>
+                {{#unless isAuthenticated}}
+                <p>You will be asked to log in or create an account before adding this item.</p>
+                {{/unless}}
+            </div>
+        </section>
+      </main>
+    {{#if isCustomer}}</div>{{/if}}
+      {{> footer }}

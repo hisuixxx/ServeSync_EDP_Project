@@ -1,0 +1,73 @@
+.ss-sidebar {
+  min-height: 100vh;
+}
+
+.ss-sidebar-label {
+  display: block;
+  padding: 4px 8px 12px;
+  color: var(--ss-muted);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.ss-sidebar nav a {
+  display: block;
+  font-weight: 700;
+}
+
+.ss-sidebar nav a.is-active {
+  background: #ff7614;
+  color: #fff;
+}
+
+.ss-sidebar nav .ss-sidebar-logout {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--ss-border);
+  border-radius: 0;
+}
+
+.ss-sidebar nav .ss-sidebar-logout:hover {
+  color: #ff9a76;
+}
+
+.ss-admin-main.servesync-shell {
+  max-width: none;
+  margin: 0;
+  padding: 28px clamp(20px, 3vw, 48px);
+}
+
+@media (max-width: 800px) {
+  .ss-sidebar {
+    min-height: 0;
+    padding: 14px;
+  }
+
+  .ss-sidebar .ss-brand {
+    padding-bottom: 10px;
+  }
+
+  .ss-sidebar-label {
+    padding-bottom: 8px;
+  }
+
+  .ss-sidebar nav {
+    gap: 4px;
+  }
+
+  .ss-sidebar nav a {
+    white-space: nowrap;
+  }
+
+  .ss-sidebar nav .ss-sidebar-logout {
+    margin-top: 0;
+    padding-top: 11px;
+    border-top: 0;
+  }
+
+  .ss-admin-main.servesync-shell {
+    padding: 20px 16px;
+  }
+}

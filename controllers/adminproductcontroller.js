@@ -29,4 +29,3 @@ const adminproductcontroller ={
     res.send("Index Page");
   },
 };
-export { adminproductcontroller };

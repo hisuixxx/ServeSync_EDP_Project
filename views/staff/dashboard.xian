@@ -1,0 +1,64 @@
+{{> head }}
+<body class="servesync-body">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+
+    <main class="ss-admin-main">
+      {{> flash-messages}}
+
+      <h1>Staff Dashboard</h1>
+
+      <section class="ss-stat-grid">
+        <article>
+          <span>Active Products</span>
+          <strong>{{stats.activeProducts}}</strong>
+        </article>
+        <article>
+          <span>Approved Orders</span>
+          <strong>{{stats.pendingOrders}}</strong>
+        </article>
+        <article>
+          <span>Preparing</span>
+          <strong>{{stats.preparingOrders}}</strong>
+        </article>
+        <article>
+          <span>Approved Catering</span>
+          <strong>{{stats.approvedCatering}}</strong>
+        </article>
+        <article>
+          <span>Approved Delivery</span>
+          <strong>{{stats.approvedDelivery}}</strong>
+        </article>
+      </section>
+
+      <section class="ss-panel">
+        <h2>Active Orders</h2>
+        <div class="ss-table-wrap">
+          <table class="ss-table" data-table>
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Customer</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each orders}}
+                <tr>
+                  <td>{{order_number}}</td>
+                  <td>{{customer.full_name}}</td>
+                  <td>{{status}}</td>
+                </tr>
+              {{else}}
+                <tr>
+                  <td colspan="3">No active orders.</td>
+                </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="/js/admin.js"></script>
+{{> footer }}

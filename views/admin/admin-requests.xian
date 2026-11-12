@@ -1,15 +1,12 @@
 {{> head }}
 <body class="servesync-body">
-  {{> header }}
-  <main class="servesync-shell servesync-page">
+  <div class="ss-admin-layout">
+    {{> admin-sidebar}}
+    <main class="ss-admin-main servesync-shell servesync-page">{{> flash-messages}}
     <div class="servesync-page-heading">
       <div>
         <div class="servesync-kicker">Administrator request management</div>
         <h1>{{ requestTypeLabel }} requests.</h1>
-      </div>
-      <div class="servesync-detail-actions">
-        <a class="servesync-button {{#if isCatering}}servesync-button-primary{{else}}servesync-button-ghost{{/if}}" href="/admin/requests/catering">Catering</a>
-        <a class="servesync-button {{#unless isCatering}}servesync-button-primary{{else}}servesync-button-ghost{{/unless}}" href="/admin/requests/delivery">Delivery</a>
       </div>
     </div>
     {{#if success_msg}}<div class="servesync-form-success" role="status">{{ success_msg }}</div>{{/if}}
@@ -71,5 +68,6 @@
     {{else}}
       <p class="servesync-empty">There are no {{ requestType }} requests yet.</p>
     {{/if}}
-  </main>
+    </main>
+  </div>
   {{> footer }}
