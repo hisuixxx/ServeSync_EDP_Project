@@ -2,72 +2,40 @@
 <body class="servesync-body">
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
-    <main class="ss-admin-main servesync-shell servesync-page">{{> flash-messages}}
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">Administrator request management</div>
-        <h1>{{ requestTypeLabel }} requests.</h1>
-      </div>
-    </div>
-    {{#if success_msg}}<div class="servesync-form-success" role="status">{{ success_msg }}</div>{{/if}}
-    {{#if error_msg}}<div class="servesync-form-error" role="alert">{{ error_msg }}</div>{{/if}}
-    {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
-
-    {{#if requests.length}}
-      <div class="servesync-request-list">
-        {{#each requests}}
-          <article class="servesync-request-card">
-            <div class="servesync-request-heading">
-              <h2>{{ requestType }} request #{{ id }}</h2>
-              <span class="servesync-request-status servesync-request-status-{{ status }}">{{ status }}</span>
-            </div>
-            <div class="servesync-request-customer">
-              <strong>{{ customer_name }}</strong>
-              {{#if customer}}<span>{{ customer.full_name }} &middot; {{ customer.email }}{{#if customer.phone}} &middot; {{ customer.phone }}{{/if}}</span>{{/if}}
-              <span>Request contact: {{ contact_number }}{{#if email}} &middot; {{ email }}{{/if}}</span>
-            </div>
-            <dl class="servesync-request-details">
-              {{#if isCatering}}
-                <div><dt>Event</dt><dd>{{ event_date }} at {{ event_time }}</dd></div>
-                <div><dt>Location</dt><dd>{{ event_location }}</dd></div>
-                <div><dt>Guests</dt><dd>{{ guest_count }}</dd></div>
-                <div><dt>Package / preferences</dt><dd>{{ food_preferences }}</dd></div>
-              {{else}}
-                <div><dt>Requested</dt><dd>{{ requested_date }} at {{ preferred_time }}</dd></div>
-                <div><dt>Delivery address</dt><dd>{{ delivery_address }}</dd></div>
-                <div><dt>Order details</dt><dd>{{ order_details }}</dd></div>
-              {{/if}}
-              {{#if special_instructions}}<div><dt>Special instructions</dt><dd>{{ special_instructions }}</dd></div>{{/if}}
-              {{#if rejection_reason}}<div><dt>Rejection reason</dt><dd>{{ rejection_reason }}</dd></div>{{/if}}
-              {{#if reviewer}}<div><dt>Last reviewed by</dt><dd>{{ reviewer.full_name }} &middot; {{ reviewed_at }}</dd></div>{{/if}}
-            </dl>
-
-            <form class="servesync-request-status-form" method="POST" action="/admin/requests/{{#if isCatering}}catering{{else}}delivery{{/if}}/{{ id }}/status">
-              <label class="servesync-form-field">Update status
-                <select class="servesync-select" name="status" required>
-                  {{#each statusOptions}}
-                    <option value="{{ value }}" {{#if isSelected}}selected{{/if}}>{{ value }}</option>
-                  {{/each}}
-                </select>
-              </label>
-              <label class="servesync-form-field">Reason (required when rejecting; optional status note)
-                <textarea class="servesync-textarea" name="reason" maxlength="2000">{{ rejection_reason }}</textarea>
-              </label>
-              <button class="servesync-button servesync-button-primary" type="submit">Save status</button>
-            </form>
-
-            <details class="servesync-request-history">
-              <summary>Review history ({{ history.length }})</summary>
-              {{#each history}}
-                <p><strong>{{#if previous_status}}{{ previous_status }} &rarr; {{/if}}{{ status }}</strong> &middot; {{ createdAt }}{{#if changedBy}} &middot; {{ changedBy.full_name }} ({{ changedBy.role }}){{/if}}{{#if reason}} &mdash; {{ reason }}{{/if}}</p>
-              {{/each}}
-            </details>
-          </article>
-        {{/each}}
-      </div>
-    {{else}}
-      <p class="servesync-empty">There are no {{ requestType }} requests yet.</p>
-    {{/if}}
+    <main class="ss-admin-main">
+      {{> admin-topbar adminSection="ADMINISTRATOR REQUEST MANAGEMENT" adminPageTitle=adminPageTitle}}
+      {{> flash-messages}}
+      {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
+      <section class="ss-panel">
+        <div class="ss-table-wrap">
+          <table class="ss-table" data-table>
+            <thead><tr><th>ID</th><th>Customer</th><th>{{#if isCatering}}Event date{{else}}Delivery date{{/if}}</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              {{#each requests}}
+              <tr>
+                <td>#{{id}}</td>
+                <td><strong>{{customer_name}}</strong>{{#if customer}}<br><small>{{customer.email}}</small>{{/if}}</td>
+                <td>{{#if isCatering}}{{event_date}} {{event_time}}{{else}}{{requested_date}} {{preferred_time}}{{/if}}</td>
+                <td>{{status}}</td>
+                <td>
+                  {{#eq status "rejected"}}
+                    <span class="ss-request-rejection-reason" aria-label="Reason for rejection">{{#if rejection_reason}}{{rejection_reason}}{{else}}No reason provided{{/if}}</span>
+                  {{else}}
+                    <button class="ss-small-button ss-secondary" type="button" data-modal-open="request-{{requestType}}-{{id}}">View / update</button>
+                  {{/eq}}
+              </tr>
+              {{else}}<tr><td colspan="5">There are no {{../requestTypeLabel}} requests yet.</td></tr>{{/each}}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      {{#each requests}}
+      <div class="servesync-modal ss-request-detail-modal" id="request-{{requestType}}-{{id}}" hidden aria-hidden="true"><div class="servesync-modal-backdrop" data-modal-close="request-{{requestType}}-{{id}}"></div><section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="request-title-{{id}}"><button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="request-{{requestType}}-{{id}}">&times;</button><div class="servesync-kicker">{{requestType}} request #{{id}}</div><h2 id="request-title-{{id}}">{{customer_name}}</h2><dl class="servesync-request-details">
+        {{#if isCatering}}<div><dt>Event</dt><dd>{{event_date}} at {{event_time}}</dd></div><div><dt>Location</dt><dd>{{event_location}}</dd></div><div><dt>Guests</dt><dd>{{guest_count}}</dd></div><div><dt>Preferences</dt><dd>{{food_preferences}}</dd></div>{{else}}<div><dt>Requested</dt><dd>{{requested_date}} at {{preferred_time}}</dd></div><div><dt>Address</dt><dd>{{delivery_address}}</dd></div><div><dt>Order details</dt><dd>{{order_details}}</dd></div>{{/if}}
+        <div><dt>Contact</dt><dd>{{contact_number}}{{#if email}} · {{email}}{{/if}}</dd></div>{{#if special_instructions}}<div><dt>Instructions</dt><dd>{{special_instructions}}</dd></div>{{/if}}{{#if rejection_reason}}<div><dt>Reason</dt><dd>{{rejection_reason}}</dd></div>{{/if}}
+      </dl><form class="servesync-request-status-form" method="POST" action="/admin/requests/{{#if isCatering}}catering{{else}}delivery{{/if}}/{{id}}/status"><label class="servesync-form-field">Update status<select class="servesync-select" name="status" required>{{#each statusOptions}}<option value="{{value}}" {{#if isSelected}}selected{{/if}}>{{value}}</option>{{/each}}</select></label><label class="servesync-form-field">Reason (required when rejecting)<textarea class="servesync-textarea" name="reason" maxlength="2000">{{rejection_reason}}</textarea></label><div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Save status</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="request-{{requestType}}-{{id}}">Cancel</button></div></form></section></div>
+      {{/each}}
     </main>
   </div>
-  {{> footer }}
+  <script src="/js/admin.js" defer></script>
+{{> footer }}

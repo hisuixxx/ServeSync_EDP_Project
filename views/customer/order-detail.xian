@@ -3,9 +3,8 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
-    <a href="/my-orders">← My orders</a>
-    <h1>Order {{order.order_number}}</h1>
-
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Order details"}}
+    <p class="ss-admin-page-action"><a href="/my-orders">&larr; My orders</a></p>
     {{#if success_msg}}
       <p class="servesync-notice">{{success_msg}}</p>
     {{/if}}
@@ -15,6 +14,7 @@
     {{/if}}
 
     <section class="ss-panel">
+      <h2>Order {{order.order_number}}</h2>
       <p>Order status: <strong>{{order.status}}</strong></p>
       <p>Payment status: <strong>{{order.payment.status}}</strong></p>
       <p>GCash reference: {{order.payment.reference_code}}</p>

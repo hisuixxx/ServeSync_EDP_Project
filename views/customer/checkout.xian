@@ -3,14 +3,9 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Checkout"}}
     {{> flash-messages}}
 
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">SECURE CHECKOUT</div>
-        <h1>Review and place your order</h1>
-      </div>
-    </div>
 
     {{#if error_msg}}
       <p class="servesync-notice">{{error_msg}}</p>

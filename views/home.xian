@@ -1,19 +1,39 @@
 {{> head }}
-<body class="servesync-body">
-  <main class="servesync-shell">
-    <header class="servesync-header">
-      <a class="servesync-logo" href="/">ServeSync</a>
-      <nav>
+<body class="servesync-body home-page">
+  <main class="home-shell">
+    <header class="servesync-header home-header">
+      <a class="servesync-logo" href="/" aria-label="ServeSync home">ServeSync</a>
+      <nav aria-label="Account navigation">
         <a href="/register">Create Account</a>
         <a href="/login">Login</a>
       </nav>
     </header>
 
-    <section class="ss-hero">
+    <section class="ss-hero" aria-labelledby="home-heading">
+      <div class="ss-hero-photo" aria-hidden="true">
+        <img src="{{storefrontSettings.hero_image_url}}" alt="" fetchpriority="high" data-fallback="https://images.unsplash.com/photo-1579027989536-b7b1f875659b?auto=format&amp;fit=crop&amp;w=2000&amp;q=84" onerror="if(this.dataset.fallbackUsed){this.closest('.ss-hero-photo').classList.add('is-image-unavailable')}else{this.dataset.fallbackUsed='true';this.src=this.dataset.fallback}">
+      </div>
       <span class="servesync-kicker">DIGITAL MENU &amp; ORDERING</span>
-      <h1>Good food.<br>Easy ordering.</h1>
-      <p>Discover your next favorite meal, browse our menu, and order from the comfort of your home.</p>
-      <a class="servesync-button servesync-button-primary" href="/menu">Explore Menu →</a>
+      <h1 id="home-heading">{{storefrontSettings.hero_headline}}</h1>
+      <p>{{storefrontSettings.hero_subtitle}}</p>
+      <a class="servesync-button servesync-button-primary" href="/menu">{{storefrontSettings.hero_cta_label}}</a>
     </section>
+
+    {{#if featuredProducts.length}}
+    <section class="home-featured" aria-labelledby="home-featured-heading">
+      <div class="home-featured-heading">
+        <div><span class="servesync-kicker">FRESH FROM OUR KITCHEN</span><h2 id="home-featured-heading">Featured favorites</h2></div>
+        <a href="/menu">View full menu <span aria-hidden="true">&rarr;</span></a>
+      </div>
+      <div class="home-featured-grid">
+        {{#each featuredProducts}}
+        <a class="home-featured-card" href="/menu/{{id}}">
+          {{#if image}}<img src="{{image}}" alt="{{product_name}}" loading="lazy" onerror="this.hidden=true">{{else}}<span class="home-featured-placeholder">ServeSync</span>{{/if}}
+          <span class="home-featured-copy"><small>{{category.category_name}}</small><strong>{{product_name}}</strong><b>₱{{price}}</b></span>
+        </a>
+        {{/each}}
+      </div>
+    </section>
+    {{/if}}
   </main>
 {{> footer }}

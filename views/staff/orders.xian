@@ -2,52 +2,64 @@
 <body class="servesync-body">
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
-
     <main class="ss-admin-main">
+      {{> admin-topbar adminSection="ORDER MANAGEMENT" adminPageTitle="Orders"}}
       {{> flash-messages}}
-
-      <h1>Operational Orders</h1>
-
       <section class="ss-panel">
+        <h2>Active orders</h2>
         <div class="ss-table-wrap">
           <table class="ss-table" data-table>
-            <thead>
-              <tr>
-                <th>Order</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Status</th>
-                <th>Update</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {{#each orders}}
-                <tr>
-                  <td>{{order_number}}</td>
-                  <td>{{customer.full_name}}</td>
-                  <td>{{items.length}}</td>
-                  <td>{{status}}</td>
-                  <td>
-                    <form method="post" action="/staff/orders/{{id}}/status">
-                      <select name="status">
-                        <option value="preparing">Preparing</option>
-                        <option value="ready">Ready</option>
-                        <option value="out_for_delivery">Out for Delivery</option>
-                      </select>
-                      <button class="ss-small-button">Update</button>
-                    </form>
-                  </td>
-                </tr>
-              {{else}}
-                <tr>
-                  <td colspan="5">No orders.</td>
-                </tr>
-              {{/each}}
+              <tr>
+                <td>{{order_number}}</td>
+                <td>{{customer.full_name}}</td>
+                <td>{{items.length}}</td>
+                <td>PHP {{total_amount}}</td>
+                <td>{{payment.status}}</td>
+                <td>{{status}}</td>
+                <td><button class="ss-small-button ss-secondary" type="button" data-modal-open="staff-order-{{id}}">{{#if canUpdate}}View / update{{else}}View details{{/if}}</button></td>
+              </tr>
+              {{else}}<tr><td colspan="7">No active orders.</td></tr>{{/each}}
             </tbody>
           </table>
         </div>
       </section>
+
+      {{#each orders}}
+      <div class="servesync-modal ss-order-detail-modal" id="staff-order-{{id}}" hidden aria-hidden="true">
+        <div class="servesync-modal-backdrop" data-modal-close="staff-order-{{id}}"></div>
+        <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="staff-order-title-{{id}}">
+          <button class="servesync-modal-close" type="button" aria-label="Close order details" data-modal-close="staff-order-{{id}}">&times;</button>
+          <span class="servesync-kicker">ORDER QUEUE · {{status}}</span>
+          <h2 id="staff-order-title-{{id}}">{{order_number}}</h2>
+          <dl class="servesync-request-details">
+            <div><dt>Customer</dt><dd>{{customer.full_name}}</dd></div>
+            <div><dt>Contact</dt><dd>{{customer.phone}}</dd></div>
+            <div><dt>Order type</dt><dd>{{order_type}}</dd></div>
+            {{#if delivery_address}}<div><dt>Delivery address</dt><dd>{{delivery_address}}</dd></div>{{/if}}
+            <div><dt>Payment</dt><dd>{{payment.method}} · {{payment.status}}</dd></div>
+            <div><dt>Total</dt><dd>PHP {{total_amount}}</dd></div>
+            {{#if notes}}<div><dt>Special instructions</dt><dd>{{notes}}</dd></div>{{/if}}
+          </dl>
+          <h3>Items</h3>
+          <div class="ss-table-wrap"><table class="ss-table ss-modal-items-table"><thead><tr><th>Item</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>
+            {{#each items}}<tr><td>{{product_name}}</td><td>{{quantity}}</td><td>PHP {{subtotal}}</td></tr>{{/each}}
+          </tbody></table></div>
+          {{#if canUpdate}}
+          <form class="ss-order-status-form" method="post" action="/staff/orders/{{id}}/status">
+            <label>Next order status<select name="status" required>{{#each statusOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+            <div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Update order</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="staff-order-{{id}}">Cancel</button></div>
+          </form>
+          {{else}}
+          <p class="ss-muted">No further order status changes are available to staff for this order.</p>
+          <div class="ss-modal-actions"><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="staff-order-{{id}}">Close</button></div>
+          {{/if}}
+        </section>
+      </div>
+      {{/each}}
     </main>
   </div>
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js" defer></script>
 {{> footer }}

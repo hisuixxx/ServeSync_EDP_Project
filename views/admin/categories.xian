@@ -3,8 +3,8 @@
 <div class="ss-admin-layout">
   {{> admin-sidebar}}
   <main class="ss-admin-main">
+    {{> admin-topbar adminSection="WORKSPACE" adminPageTitle="Categories"}}
     {{> flash-messages}}
-    <h1>Categories</h1>
     
     <section class="ss-panel">
       <form method="post" action="/admin/categories" class="ss-form-grid">

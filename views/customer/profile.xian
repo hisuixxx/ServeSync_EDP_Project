@@ -3,15 +3,10 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Profile settings"}}
     {{> flash-messages}}
 
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">Account settings</div>
-        <h1>Your profile.</h1>
-      </div>
-      <p>Keep your personal and contact information up to date.</p>
-    </div>
+    <p class="ss-page-intro">Keep your personal and contact information up to date.</p>
 
     <div class="servesync-profile-grid">
       <form class="servesync-auth-card ss-panel" method="POST" action="/profile">

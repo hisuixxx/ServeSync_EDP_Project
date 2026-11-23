@@ -31,7 +31,13 @@ export const adminUsers = async (req, res) => {
   try {
     const search = String(req.query.search || "").trim().slice(0, 100);
     const where = {};
-    if (search) where[Op.or] = [{ full_name: { [Op.like]: `%${search}%` } }, { email: { [Op.like]: `%${search}%` } }];
+    if (search) {
+      where[Op.or] = [
+        { full_name: { [Op.like]: `%${search}%` } },
+        { email: { [Op.like]: `%${search}%` } },
+        ...( /^\d+$/.test(search) ? [{ id: Number(search) }] : []),
+      ];
+    }
     const users = await User.findAll({ where, attributes: { exclude: ["password"] }, order: [["createdAt", "DESC"]], limit: 300 });
     res.render("admin/user", { title: "ServeSync Admin | User Management", users: users.map(x => ({ ...x.get({ plain: true }), isCustomer: x.role === "customer", isStaff: x.role === "staff", isAdmin: x.role === "admin", isActive: x.status === "active", isInactive: x.status === "inactive" })), search });
   } catch (error) { console.error("User list:", error); res.status(500).send("Unable to load users."); }

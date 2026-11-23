@@ -23,6 +23,7 @@
     SOFTWARE.
     */import { Op } from "sequelize";
 import { Product, Category } from "../models/associations.js";
+import { getStorefrontSettings } from "../models/StorefrontSetting.js";
 
 export const productcontroller = {
   // Display all available menu products
@@ -30,11 +31,16 @@ export const productcontroller = {
     try {
       const search = String(req.query.search || "").trim();
       const categoryId = req.query.category || "";
+      const settings = await getStorefrontSettings();
+      const hiddenIds = Array.isArray(settings.hidden_product_ids) ? settings.hidden_product_ids.map(Number).filter(Number.isSafeInteger) : [];
+      const featuredIds = Array.isArray(settings.featured_product_ids) ? settings.featured_product_ids.map(Number).filter(Number.isSafeInteger) : [];
+      const featuredCategories = Array.isArray(settings.featured_category_ids) ? settings.featured_category_ids.map(Number).filter(Number.isSafeInteger) : [];
 
       const where = {
         status: "active",
         availability: true
       };
+      if (hiddenIds.length) where.id = { [Op.notIn]: hiddenIds };
 
       if (search) {
         where[Op.or] = [
@@ -47,7 +53,7 @@ export const productcontroller = {
         where.category_id = Number(categoryId);
       }
 
-      const [products, categories] = await Promise.all([
+      const [products, categoryRecords, managerProductRecords] = await Promise.all([
         Product.findAll({
           where,
           include: [{ model: Category, as: "category" }],
@@ -56,13 +62,38 @@ export const productcontroller = {
         Category.findAll({
           where: { status: "active" },
           order: [["category_name", "ASC"]]
-        })
+        }),
+        req.user && ["admin", "staff"].includes(req.user.role)
+          ? Product.findAll({ where: { status: "active" }, include: [{ model: Category, as: "category" }], order: [["product_name", "ASC"]] })
+          : Promise.resolve([])
       ]);
+
+      const featureOrder = new Map(featuredIds.map((id, index) => [id, index]));
+      const categoryOrder = new Map(featuredCategories.map((id, index) => [id, index]));
+      const sortedProducts = products.map(product => product.get({ plain: true }))
+        .sort((a, b) => (featureOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (featureOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER) || a.product_name.localeCompare(b.product_name));
+      const categories = categoryRecords.map(category => ({
+        ...category.get({ plain: true }),
+        isSelected: String(category.id) === String(categoryId),
+        isFeatured: categoryOrder.has(category.id),
+        featuredOrder: categoryOrder.has(category.id) ? categoryOrder.get(category.id) + 1 : "",
+      })).sort((a, b) => (categoryOrder.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (categoryOrder.get(b.id) ?? Number.MAX_SAFE_INTEGER) || a.category_name.localeCompare(b.category_name));
+      const hiddenSet = new Set(hiddenIds);
+      const featuredSet = new Set(featuredIds);
+      const managerProducts = managerProductRecords.map(product => ({
+        ...product.get({ plain: true }),
+        isVisible: !hiddenSet.has(product.id),
+        isFeatured: featuredSet.has(product.id),
+        featuredOrder: featureOrder.has(product.id) ? featureOrder.get(product.id) + 1 : "",
+      }));
 
       res.render("menu", {
         title: "ServeSync | Explore Menu",
-        products: products.map(p => p.get({ plain: true })),
-        categories: categories.map(c => c.get({ plain: true })),
+        products: sortedProducts,
+        categories,
+        managerProducts,
+        storefrontSettings: settings,
+        canCustomizeStore: Boolean(req.user && ["admin", "staff"].includes(req.user.role)),
         search,
         selectedCategory: categoryId
       });
@@ -87,6 +118,14 @@ export const productcontroller = {
         return res.status(404).render("not-found", {
           title: "ServeSync | Product Not Found"
         });
+      }
+
+      if (!req.user || !["admin", "staff"].includes(req.user.role)) {
+        const settings = await getStorefrontSettings();
+        const hiddenIds = Array.isArray(settings.hidden_product_ids) ? settings.hidden_product_ids.map(Number) : [];
+        if (hiddenIds.includes(Number(product.id))) {
+          return res.status(404).render("not-found", { title: "ServeSync | Product Not Found" });
+        }
       }
 
       res.render("product", {

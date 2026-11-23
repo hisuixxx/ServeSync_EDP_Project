@@ -3,11 +3,9 @@
     <div class="ss-admin-layout">
         {{> admin-sidebar}}
         <main class="ss-admin-main">
+            {{> admin-topbar adminSection="CATALOG" adminPageTitle="Product Archive"}}
             {{> flash-messages}}
-            <header class="ss-admin-top">
-                <div><span class="servesync-kicker">CATALOG</span>
-                    <h1>Product Archive</h1>
-                </div><a href="/admin/products">Back to Products</a></header>
+            <p class="ss-admin-page-action"><a href="/admin/products">← Back to Products</a></p>
                 <section class="ss-panel">
                     <input class="ss-table-search" data-table-search placeholder="Search archived products">
                     <div class="ss-table-wrap">

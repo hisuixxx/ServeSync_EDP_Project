@@ -3,9 +3,8 @@
 <div class="ss-admin-layout">
   {{> admin-sidebar}}
   <main class="ss-admin-main">
+    {{> admin-topbar adminSection="FINANCE" adminPageTitle="Payments"}}
     {{> flash-messages}}
-    
-    <h1>GCash Payments</h1>
     
     <section class="ss-panel">
       <div class="ss-table-wrap">

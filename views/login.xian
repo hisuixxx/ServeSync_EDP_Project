@@ -1,6 +1,9 @@
-{{> head}}
-<body class="servesync-body">
-  {{> header}}
+{{> head }}
+<body class="servesync-body auth-page">
+  <header class="auth-header servesync-shell">
+    <span class="servesync-logo" aria-label="ServeSync">ServeSync</span>
+    <a class="auth-home-link" href="/">← Back to Home</a>
+  </header>
   <main class="servesync-shell servesync-auth-page">
     <form class="servesync-auth-card" method="POST" action="/login">
       <div class="servesync-kicker">Welcome back</div>
@@ -9,15 +12,15 @@
       {{#if authMessage}}<p class="servesync-form-error" role="alert">{{ authMessage }}</p>{{/if}}
       {{#if error}}<p class="servesync-form-error" role="alert">{{ error }}</p>{{/if}}
       <input type="hidden" name="returnTo" value="{{ returnTo }}" />
-      <label class="servesync-form-field">Email
+      <label class="servesync-form-field">Email Address
         <input type="email" name="email" autocomplete="email" placeholder="you@example.com" required />
       </label>
       <label class="servesync-form-field">Password
-        <input type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required />
+        <span class="auth-password-wrap"><input id="login-password" type="password" name="password" autocomplete="current-password" placeholder="Enter your password" required /><button class="auth-password-toggle" type="button" data-password-toggle="login-password" aria-label="Show password" aria-pressed="false">Show</button></span>
       </label>
-      <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Sign In</button>
-      <p><a href="/forgot-password">Forgot password?</a></p>
-      <p class="servesync-auth-switch">New to ServeSync? <a href="/register?returnTo={{ returnTo }}">Create an account</a></p>
+      <div class="auth-form-options"><a href="/forgot-password">Forgot password?</a></div>
+      <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Login</button>
     </form>
   </main>
+  <script src="/js/auth.js" defer></script>
 {{> footer }}

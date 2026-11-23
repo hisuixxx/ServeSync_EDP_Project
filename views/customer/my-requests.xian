@@ -3,12 +3,7 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">Your service requests</div>
-        <h1>Request history.</h1>
-      </div>
-    </div>
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="My requests"}}
     {{#if success_msg}}<div class="servesync-form-success" role="status">{{ success_msg }}</div>{{/if}}
     {{#if error_msg}}<div class="servesync-form-error" role="alert">{{ error_msg }}</div>{{/if}}
     {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}

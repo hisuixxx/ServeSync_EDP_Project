@@ -1,31 +1,33 @@
-{{> head}}
-<body class="servesync-body">
-  {{> header}}
+{{> head }}
+<body class="servesync-body auth-page">
+  <header class="auth-header servesync-shell">
+    <span class="servesync-logo" aria-label="ServeSync">ServeSync</span>
+    <a class="auth-home-link" href="/">← Back to Home</a>
+  </header>
   <main class="servesync-shell servesync-auth-page">
     <form class="servesync-auth-card" method="POST" action="/register">
       <div class="servesync-kicker">Join ServeSync</div>
       <h1>Create your account.</h1>
       <p>Save your details and make your next dining moment simpler.</p>
       <input type="hidden" name="returnTo" value="{{ returnTo }}" />
-      {{#if errors}}
-        <div class="servesync-form-error" role="alert">
-          {{#each errors}}<div>{{ this }}</div>{{/each}}
-        </div>
-      {{/if}}
-      <label class="servesync-form-field">Full name
+      {{#if errors}}<div class="servesync-form-error" role="alert">{{#each errors}}<div>{{ this }}</div>{{/each}}</div>{{/if}}
+      <label class="servesync-form-field">Full Name
         <input type="text" name="name" value="{{ form.fullName }}" autocomplete="name" placeholder="Your full name" required />
       </label>
-      <label class="servesync-form-field">Email
+      <label class="servesync-form-field">Email Address
         <input type="email" name="email" value="{{ form.email }}" autocomplete="email" placeholder="you@example.com" required />
       </label>
-      <label class="servesync-form-field">Password
-        <input type="password" name="password" autocomplete="new-password" placeholder="At least 12 characters" minlength="12" required />
+      <label class="servesync-form-field">Contact Number <span class="auth-optional">Optional</span>
+        <input type="tel" name="phone" value="{{ form.phone }}" autocomplete="tel" placeholder="Your contact number" />
       </label>
-      <label class="servesync-form-field">Confirm password
-        <input type="password" name="confirmPassword" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required />
+      <label class="servesync-form-field">Password
+        <span class="auth-password-wrap"><input id="register-password" type="password" name="password" autocomplete="new-password" placeholder="At least 12 characters" minlength="12" required /><button class="auth-password-toggle" type="button" data-password-toggle="register-password" aria-label="Show password" aria-pressed="false">Show</button></span>
+      </label>
+      <label class="servesync-form-field">Confirm Password
+        <span class="auth-password-wrap"><input id="register-confirm-password" type="password" name="confirmPassword" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required /><button class="auth-password-toggle" type="button" data-password-toggle="register-confirm-password" aria-label="Show password" aria-pressed="false">Show</button></span>
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Create Account</button>
-      <p class="servesync-auth-switch">Already have an account? <a href="/login?returnTo={{ returnTo }}">Sign in</a></p>
     </form>
   </main>
+  <script src="/js/auth.js" defer></script>
 {{> footer }}

@@ -3,13 +3,8 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">Your cart</div>
-        <h1>Ready when you are.</h1>
-      </div>
-      <p>Review your selected dishes and quantities before proceeding.</p>
-    </div>
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Shopping cart"}}
+    <p class="ss-page-intro">Review your selected dishes and quantities before proceeding.</p>
     {{#if orderConfirmation}}
       <div class="servesync-notice servesync-order-success" role="status">{{ orderConfirmation }}</div>
     {{/if}}

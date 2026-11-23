@@ -1,5 +1,6 @@
 import { Cart, CartItem, Product, Category } from "../models/associations.js";
 import { sequelize } from "../models/db.js";
+import { getStorefrontSettings } from "../models/StorefrontSetting.js";
 
 const parseQuantity = value => { const n = Number(value); return Number.isSafeInteger(n) && n > 0 && n <= 99 ? n : null; };
 const message = (req, text, type = "error") => { req.flash(type === "success" ? "success_msg" : "error_msg", text); };
@@ -8,7 +9,9 @@ const cartController = {
   cartPage: async (req, res) => {
     try {
       const cart = await Cart.findOne({ where: { user_id: req.user.id, status: "active" }, include: [{ model: CartItem, as: "items", include: [{ model: Product, as: "product", include: [{ model: Category, as: "category" }] }] }] });
-      const items = (cart?.items || []).map(item => ({ id: item.id, product_id: item.product_id, product_name: item.product?.product_name || "Unavailable product", product_image: item.product?.image, category_name: item.product?.category?.category_name || "", isAvailable: Boolean(item.product && item.product.status === "active" && item.product.availability), quantity: item.quantity, canDecrease: item.quantity > 1, price: Number(item.product?.price ?? item.price).toFixed(2), lineTotal: (Number(item.product?.price ?? item.price) * item.quantity).toFixed(2) }));
+      const storefront = await getStorefrontSettings();
+      const hiddenIds = new Set((Array.isArray(storefront.hidden_product_ids) ? storefront.hidden_product_ids : []).map(Number));
+      const items = (cart?.items || []).map(item => ({ id: item.id, product_id: item.product_id, product_name: item.product?.product_name || "Unavailable product", product_image: item.product?.image, category_name: item.product?.category?.category_name || "", isAvailable: Boolean(item.product && item.product.status === "active" && item.product.availability && !hiddenIds.has(Number(item.product_id))), quantity: item.quantity, canDecrease: item.quantity > 1, price: Number(item.product?.price ?? item.price).toFixed(2), lineTotal: (Number(item.product?.price ?? item.price) * item.quantity).toFixed(2) }));
       const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
       res.render("customer/cart", { title: "ServeSync | Your Cart", cart: items, cartTotal: total.toFixed(2), canCheckout: items.length > 0 && items.every(item => item.isAvailable) });
     } catch (error) { console.error(error); res.status(500).send("Unable to load your cart."); }
@@ -16,6 +19,13 @@ const cartController = {
   addToCart: async (req, res) => {
     const quantity = parseQuantity(req.body.quantity || 1); const productId = Number(req.params.id);
     if (!quantity || !Number.isSafeInteger(productId) || productId < 1) { message(req, "Enter a valid quantity."); return res.redirect(`/menu/${req.params.id}`); }
+    try {
+      const storefront = await getStorefrontSettings();
+      if ((Array.isArray(storefront.hidden_product_ids) ? storefront.hidden_product_ids : []).map(Number).includes(productId)) {
+        message(req, "This item is not currently available on the store menu.");
+        return res.redirect("/menu");
+      }
+    } catch (error) { console.error("Storefront visibility check:", error); message(req, "Unable to check menu availability right now."); return res.redirect("/menu"); }
     const tx = await sequelize.transaction();
     try {
       const product = await Product.findOne({ where: { id: productId, status: "active", availability: true }, include: [{ model: Category, as: "category", where: { status: "active" } }], transaction: tx, lock: tx.LOCK.UPDATE });

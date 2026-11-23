@@ -38,6 +38,7 @@ import { adminUsers, adminCreateStaff, adminUpdateUser, adminResetUserPassword, 
 import { adminOrders, adminOrderDetail, adminUpdateOrderStatus, adminPayments, adminVerifyPayment, adminPaymentReceipt } from "../controllers/ordermanagementcontroller.js";
 import { staffDashboard, staffProducts, staffCreateProduct, staffUpdateProduct, staffOrders, staffUpdateOrderStatus } from "../controllers/staffcontroller.js";
 import { customerOrders, customerOrderDetail, customerNotifications, markNotificationRead } from "../controllers/customerordercontroller.js";
+import { storefrontController } from "../controllers/storefrontcontroller.js";
 
 const router = express.Router();
 
@@ -45,6 +46,8 @@ const router = express.Router();
 router.get("/", homePage);
 router.get("/menu", productcontroller.menu);
 router.get("/menu/:id", productcontroller.detail);
+router.post("/storefront/landing-settings", requireRole(["admin", "staff"]), storefrontController.updateLanding);
+router.post("/storefront/menu-settings", requireRole(["admin", "staff"]), storefrontController.updateMenu);
 router.get("/login", loginPage);
 router.post("/login", loginUser);
 router.get("/register", registerPage);
@@ -74,9 +77,9 @@ router.get("/checkout", requireCustomer, checkoutPage);
 router.post("/checkout/place", requireCustomer, uploadPaymentReceipt, placeCheckoutOrder);
 
 // Customer service requests
-router.get("/request/catering", requireCustomer, serviceRequestController.cateringForm);
+router.get("/request/catering", requireCustomer, (req, res) => res.redirect("/my-orders"));
 router.post("/request/catering", requireCustomer, serviceRequestController.createCatering);
-router.get("/request/delivery", requireCustomer, serviceRequestController.deliveryForm);
+router.get("/request/delivery", requireCustomer, (req, res) => res.redirect("/my-orders"));
 router.post("/request/delivery", requireCustomer, serviceRequestController.createDelivery);
 router.get("/my-requests", requireCustomer, serviceRequestController.listCustomerRequests);
 router.get("/my-orders", requireCustomer, customerOrders);

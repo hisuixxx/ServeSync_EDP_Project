@@ -91,6 +91,7 @@ export const loginUser = async (req, res) => {
 export const registerUser = async (req, res) => {
   const fullName = String(req.body.name || "").trim();
   const email = String(req.body.email || "").trim().toLowerCase();
+  const phone = String(req.body.phone || "").trim().slice(0, 30);
   const password = String(req.body.password || "");
   const confirmPassword = String(req.body.confirmPassword || "");
   const returnTo = safeReturnTo(req.body.returnTo) || safeReturnTo(req.session.returnTo);
@@ -103,7 +104,7 @@ export const registerUser = async (req, res) => {
   if (errors.length) {
     return res.status(400).render("register", authView("register", "Create account", {
       errors,
-      form: { fullName, email },
+      form: { fullName, email, phone },
       returnTo,
     }));
   }
@@ -112,7 +113,7 @@ export const registerUser = async (req, res) => {
   if (existingUser) {
     return res.status(409).render("register", authView("register", "Create account", {
       errors: ["An account with that email already exists."],
-      form: { fullName, email },
+      form: { fullName, email, phone },
       returnTo,
     }));
   }
@@ -121,6 +122,7 @@ export const registerUser = async (req, res) => {
   const user = await User.create({
     full_name: fullName,
     email,
+    phone: phone || null,
     password: hashed,
     role: "customer",
     status: "active",

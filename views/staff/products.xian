@@ -2,84 +2,75 @@
 <body class="servesync-body">
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
-
     <main class="ss-admin-main">
+      {{> admin-topbar adminSection="CATALOG" adminPageTitle="Product Management"}}
       {{> flash-messages}}
-
-      <h1>Product Management</h1>
 
       <section class="ss-panel">
         <h2>Add Product</h2>
-        <form method="post" action="/staff/products" enctype="multipart/form-data" class="ss-form-grid">
-          <label>Name
-            <input name="product_name" required>
-          </label>
+        <form method="post" action="/staff/products" enctype="multipart/form-data" class="ss-form-grid ss-product-create-form">
+          <label>Product name<input name="product_name" maxlength="150" required></label>
           <label>Category
-            <select name="category_id">
-              {{#each categories}}
-                <option value="{{id}}">{{category_name}}</option>
-              {{/each}}
+            <select name="category_id" required>
+              {{#each categories}}<option value="{{id}}">{{category_name}}</option>{{/each}}
             </select>
           </label>
-          <label>Price
-            <input name="price" type="number" min="0.01" step="0.01" required>
-          </label>
-          <label>Product image
-            <input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp">
-          </label>
-          <label>Or image URL
-            <input name="image" type="url">
-          </label>
-          <label class="ss-wide">Description
-            <textarea name="description"></textarea>
-          </label>
-          <label>
-            <input type="checkbox" name="availability" checked> Available
-          </label>
-          <button class="servesync-button servesync-button-primary">Add Product</button>
+          <label>Price (PHP)<input type="number" name="price" min="0.01" step="0.01" required></label>
+          <label>Product image<input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          <label>Or image URL<input name="image" type="url" placeholder="https://..."></label>
+          <label>Description<textarea class="ss-product-description-input" name="description" rows="1"></textarea></label>
+          <button class="servesync-button servesync-button-primary ss-wide" type="submit">Add Product</button>
         </form>
       </section>
 
       <section class="ss-panel">
-        <h2>Edit Products</h2>
+        <h2>Active Products</h2>
         <div class="ss-table-wrap">
           <table class="ss-table" data-table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Category ID</th>
-                <th>Price</th>
-                <th>Availability</th>
-                <th>Save</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Availability</th><th>Update</th></tr></thead>
             <tbody>
               {{#each products}}
-                <tr>
-                  <td colspan="5">
-                    <form method="post" action="/staff/products/{{id}}/update" enctype="multipart/form-data" class="ss-inline-edit">
-                      <input name="product_name" value="{{product_name}}">
-                      <input name="category_id" type="number" value="{{category_id}}">
-                      <input name="price" type="number" step="0.01" value="{{price}}">
-                      <input name="image" type="url" value="{{image}}" placeholder="Image URL">
-                      <label>
-                        <input type="checkbox" name="availability" {{#if availability}}checked{{/if}}> Available
-                      </label>
-                      <button class="ss-small-button">Save</button>
-                    </form>
-                  </td>
-                </tr>
-              {{else}}
-                <tr>
-                  <td colspan="5">No products.</td>
-                </tr>
-              {{/each}}
+              <tr>
+                <td><div class="ss-product-name-cell">
+                  {{#if image}}<img class="ss-product-thumb" src="{{image}}" alt="" loading="lazy" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="ss-product-thumb-fallback" aria-hidden="true" hidden>S</span>{{else}}<span class="ss-product-thumb-fallback" aria-hidden="true">S</span>{{/if}}
+                  <span>{{product_name}}</span>
+                </div></td>
+                <td>{{category.category_name}}</td>
+                <td>PHP {{price}}</td>
+                <td><span class="ss-product-availability {{#if availability}}is-available{{else}}is-unavailable{{/if}}">{{#if availability}}available{{else}}unavailable{{/if}}</span></td>
+                <td><button class="ss-small-button ss-secondary" type="button" data-modal-open="staff-product-edit-{{id}}">Edit</button></td>
+              </tr>
+              {{else}}<tr><td colspan="5">No active products found.</td></tr>{{/each}}
             </tbody>
           </table>
         </div>
-        <p class="ss-muted">Staff can add and edit products but cannot archive or delete them.</p>
+        <p class="ss-muted">Staff can add and edit products. Archiving and deletion remain administrator-only.</p>
       </section>
+
+      {{#each products}}
+      <div class="servesync-modal ss-product-edit-modal" id="staff-product-edit-{{id}}" hidden aria-hidden="true">
+        <div class="servesync-modal-backdrop" data-modal-close="staff-product-edit-{{id}}"></div>
+        <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="staff-product-edit-title-{{id}}">
+          <button class="servesync-modal-close" type="button" aria-label="Close product editor" data-modal-close="staff-product-edit-{{id}}">&times;</button>
+          <span class="servesync-kicker">PRODUCT MANAGEMENT</span>
+          <h2 id="staff-product-edit-title-{{id}}">Edit {{product_name}}</h2>
+          <form method="post" action="/staff/products/{{id}}/update" enctype="multipart/form-data" class="ss-edit-form">
+            <label>Name<input name="product_name" value="{{product_name}}" maxlength="150" required></label>
+            <label>Category<select name="category_id" required>{{#each ../categories}}<option value="{{id}}" {{#eq id ../category_id}}selected{{/eq}}>{{category_name}}</option>{{/each}}</select></label>
+            <label>Price (PHP)<input name="price" type="number" min="0.01" step="0.01" value="{{price}}" required></label>
+            <label>Replace image<input name="imageFile" type="file" accept="image/jpeg,image/png,image/webp"></label>
+            <label class="ss-wide">Image URL<input name="image" type="text" value="{{image}}" placeholder="https://... or /uploads/..."></label>
+            <label class="ss-wide">Description<textarea name="description" rows="4">{{description}}</textarea></label>
+            <label class="ss-product-availability-field"><input type="checkbox" name="availability" {{#if availability}}checked{{/if}}> Available to order</label>
+            <div class="ss-modal-actions ss-wide">
+              <button class="servesync-button servesync-button-primary" type="submit">Save Changes</button>
+              <button class="servesync-button servesync-button-ghost" type="button" data-modal-close="staff-product-edit-{{id}}">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </div>
+      {{/each}}
     </main>
   </div>
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js" defer></script>
 {{> footer }}

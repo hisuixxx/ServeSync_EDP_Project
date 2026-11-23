@@ -32,8 +32,29 @@ export const adminOrders = async (req, res) => {
   try {
     const status = String(req.query.status || "");
     const where = status ? { status } : {};
-    const orders = await Order.findAll({ where, include: [{ model: User, as: "customer", attributes: ["id", "full_name", "email", "phone"] }, { model: Payment, as: "payment" }], order: [["createdAt", "DESC"]], limit: 200 });
-    res.render("admin/orders", { title: "ServeSync Admin | Orders", orders: orders.map(x => x.get({ plain: true })), selectedStatus: status });
+    const orders = await Order.findAll({ where, include: [{ model: User, as: "customer", attributes: ["id", "full_name", "email", "phone"] }, { model: OrderItem, as: "items" }, { model: Payment, as: "payment" }], order: [["createdAt", "DESC"]], limit: 200 });
+    const transitions = {
+      pending: ["approved", "rejected", "cancelled"],
+      approved: ["preparing", "cancelled"],
+      preparing: ["ready", "cancelled"],
+      ready: ["completed", "cancelled"],
+      out_for_delivery: ["completed", "cancelled"],
+      completed: [], rejected: [], cancelled: [],
+    };
+    const rows = orders.map(order => {
+      const plain = order.get({ plain: true });
+      const allowed = (transitions[plain.status] || []).filter(next => next !== "approved" || plain.payment?.status === "verified");
+      if (plain.status === "ready" && plain.order_type === "delivery" && plain.payment?.status === "verified") allowed.unshift("out_for_delivery");
+      return {
+        ...plain,
+        canUpdate: allowed.length > 0,
+        statusOptions: allowed.map(value => ({
+          value,
+          label: ({ approved: "Approve", rejected: "Reject", cancelled: "Cancel", preparing: "Preparing", ready: "Ready", out_for_delivery: "Out for delivery", completed: "Complete" })[value],
+        })),
+      };
+    });
+    res.render("admin/orders", { title: "ServeSync Admin | Orders", orders: rows, selectedStatus: status });
   } catch (error) { console.error("Admin orders:", error); res.status(500).send("Unable to load orders."); }
 };
 
@@ -46,14 +67,16 @@ export const adminOrderDetail = async (req, res) => {
 };
 
 export const adminUpdateOrderStatus = async (req, res) => {
+  const returnToList = req.body.returnTo === "/admin/orders";
+  const redirectTo = id => returnToList ? "/admin/orders" : `/admin/orders/${id}`;
   const allowed = ["approved", "preparing", "ready", "out_for_delivery", "completed", "rejected", "cancelled"];
   const nextStatus = String(req.body.status || "");
-  if (!allowed.includes(nextStatus)) { req.flash("error_msg", "Invalid order status."); return res.redirect(`/admin/orders/${req.params.id}`); }
+  if (!allowed.includes(nextStatus)) { req.flash("error_msg", "Invalid order status."); return res.redirect(redirectTo(req.params.id)); }
   try {
     const order = await Order.findByPk(req.params.id, { include: [{ model: Payment, as: "payment" }] });
     if (!order) return res.status(404).send("Order not found.");
-    if (nextStatus === "approved" && order.payment?.status !== "verified") { req.flash("error_msg", "Verify the GCash payment before approving this order."); return res.redirect(`/admin/orders/${order.id}`); }
-    if (["preparing", "ready", "out_for_delivery", "completed"].includes(nextStatus) && !["approved", "preparing", "ready", "out_for_delivery"].includes(order.status)) { req.flash("error_msg", "This order must be approved before operational status updates."); return res.redirect(`/admin/orders/${order.id}`); }
+    if (nextStatus === "approved" && order.payment?.status !== "verified") { req.flash("error_msg", "Verify the GCash payment before approving this order."); return res.redirect(redirectTo(order.id)); }
+    if (["preparing", "ready", "out_for_delivery", "completed"].includes(nextStatus) && !["approved", "preparing", "ready", "out_for_delivery"].includes(order.status)) { req.flash("error_msg", "This order must be approved before operational status updates."); return res.redirect(redirectTo(order.id)); }
     const previous = order.status;
     const transitions = {
       pending: ["approved", "rejected", "cancelled"],
@@ -63,12 +86,12 @@ export const adminUpdateOrderStatus = async (req, res) => {
       out_for_delivery: ["completed", "cancelled"],
       completed: [], rejected: [], cancelled: [],
     };
-    if (!transitions[previous]?.includes(nextStatus)) { req.flash("error_msg", `Cannot change an order from ${previous} to ${nextStatus}.`); return res.redirect(`/admin/orders/${order.id}`); }
+    if (!transitions[previous]?.includes(nextStatus)) { req.flash("error_msg", `Cannot change an order from ${previous} to ${nextStatus}.`); return res.redirect(redirectTo(order.id)); }
     await order.update({ status: nextStatus, reviewed_by: req.user.id, reviewed_at: new Date() });
     await Notification.create({ user_id: order.customer_id, title: "Order status updated", message: `Your order ${order.order_number} changed from ${previous} to ${nextStatus.replaceAll("_", " ")}.`, link: `/my-orders/${order.id}` });
     await writeAudit(req, "update_order_status", "Order", order.id, { previous, nextStatus });
-    req.flash("success_msg", "Order status updated."); res.redirect(`/admin/orders/${order.id}`);
-  } catch (error) { console.error("Update order status:", error); req.flash("error_msg", "Unable to update order."); res.redirect("/admin/orders"); }
+    req.flash("success_msg", "Order status updated."); res.redirect(redirectTo(order.id));
+  } catch (error) { console.error("Update order status:", error); req.flash("error_msg", "Unable to update order."); res.redirect(redirectTo(req.params.id)); }
 };
 
 export const adminPayments = async (req, res) => {

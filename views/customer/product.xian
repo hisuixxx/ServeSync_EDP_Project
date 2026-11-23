@@ -2,7 +2,9 @@
 <body class="servesync-body">
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
-    <main class="ss-admin-main servesync-shell servesync-detail">
+    <main class="ss-admin-main servesync-shell">
+    {{> admin-topbar adminSection="SERVESYNC MENU" adminPageTitle=product.product_name}}
+    <section class="servesync-detail">
     <div class="servesync-detail-image">
       {{#if product.image}}
         <img src="{{ product.image }}" alt="{{ product.product_name }}" />
@@ -12,7 +14,6 @@
     </div>
     <article>
       <div class="servesync-kicker">{{ product.category.category_name }}</div>
-      <h1>{{ product.product_name }}</h1>
       <p class="servesync-detail-description">{{ product.description }}</p>
       {{#if cartMessage}}
         <p class="servesync-cart-message servesync-cart-message-{{ cartMessageType }}" role="status">{{ cartMessage }}</p>
@@ -38,6 +39,7 @@
         <a class="servesync-button servesync-button-ghost" href="/menu">Back to menu</a>
       </div>
     </article>
+    </section>
     </main>
   </div>
   {{> footer }}

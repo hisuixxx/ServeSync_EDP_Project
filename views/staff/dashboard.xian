@@ -4,9 +4,9 @@
     {{> admin-sidebar}}
 
     <main class="ss-admin-main">
+      {{> admin-topbar adminSection="STAFF WORKSPACE" adminPageTitle="Dashboard"}}
       {{> flash-messages}}
 
-      <h1>Staff Dashboard</h1>
 
       <section class="ss-stat-grid">
         <article>

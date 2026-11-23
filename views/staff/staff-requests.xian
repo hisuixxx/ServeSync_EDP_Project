@@ -2,47 +2,58 @@
 <body class="servesync-body">
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
-    <main class="ss-admin-main servesync-shell servesync-page">
-    <div class="servesync-page-heading">
-      <div>
-        <div class="servesync-kicker">Approved requests · Staff operations</div>
-        <h1>{{ requestType }} schedule.</h1>
-      </div>
-    </div>
-    {{#if loadError}}<div class="servesync-form-error" role="alert">{{ loadError }}</div>{{/if}}
+    <main class="ss-admin-main">
+      {{> admin-topbar adminSection="STAFF REQUEST MANAGEMENT" adminPageTitle=requestType}}
+      {{> flash-messages}}
+      {{#if loadError}}<div class="servesync-form-error" role="alert">{{loadError}}</div>{{/if}}
+      <section class="ss-panel">
+        <h2>Approved {{requestType}} requests</h2>
+        <div class="ss-table-wrap">
+          <table class="ss-table" data-table>
+            <thead><tr><th>ID</th><th>Customer</th><th>{{#if isCatering}}Event date{{else}}Delivery date{{/if}}</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              {{#each requests}}
+              <tr>
+                <td>#{{id}}</td>
+                <td><strong>{{customer_name}}</strong>{{#if customer}}<br><small>{{customer.email}}</small>{{else}}<br><small>{{email}}</small>{{/if}}</td>
+                <td>{{#if isCatering}}{{event_date}} {{event_time}}{{else}}{{requested_date}} {{preferred_time}}{{/if}}</td>
+                <td><span class="servesync-request-status servesync-request-status-approved">{{status}}</span></td>
+                <td>
+                  {{#eq status "rejected"}}
+                    <span class="ss-request-rejection-reason" aria-label="Reason for rejection">{{#if rejection_reason}}{{rejection_reason}}{{else}}No reason provided{{/if}}</span>
+                  {{else}}
+                    <button class="ss-small-button ss-secondary" type="button" data-modal-open="staff-request-{{requestType}}-{{id}}">View details</button>
+                  {{/eq}}
+                </td>
+              </tr>
+              {{else}}<tr><td colspan="5">There are no approved {{../requestType}} requests at this time.</td></tr>{{/each}}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    {{#if requests.length}}
-      <div class="servesync-request-list">
-        {{#each requests}}
-          <article class="servesync-request-card">
-            <div class="servesync-request-heading">
-              <h2>{{ requestType }} request #{{ id }}</h2>
-              <span class="servesync-request-status servesync-request-status-approved">approved</span>
-            </div>
-            <div class="servesync-request-customer">
-              <strong>{{ customer_name }}</strong>
-              {{#if customer}}<span>{{ customer.full_name }}{{#if customer.email}} &middot; {{ customer.email }}{{/if}}</span>{{/if}}
-              <span>Contact: {{ contact_number }}</span>
-            </div>
-            <dl class="servesync-request-details">
-              {{#if isCatering}}
-                <div><dt>Event date and time</dt><dd>{{ event_date }} at {{ event_time }}</dd></div>
-                <div><dt>Event location</dt><dd>{{ event_location }}</dd></div>
-                <div><dt>Guests</dt><dd>{{ guest_count }}</dd></div>
-                <div><dt>Package / food preferences</dt><dd>{{ food_preferences }}</dd></div>
-              {{else}}
-                <div><dt>Delivery date and time</dt><dd>{{ requested_date }} at {{ preferred_time }}</dd></div>
-                <div><dt>Delivery address</dt><dd>{{ delivery_address }}</dd></div>
-                <div><dt>Order details</dt><dd>{{ order_details }}</dd></div>
-              {{/if}}
-              {{#if special_instructions}}<div><dt>Special instructions</dt><dd>{{ special_instructions }}</dd></div>{{/if}}
-            </dl>
-          </article>
-        {{/each}}
+      {{#each requests}}
+      <div class="servesync-modal ss-request-detail-modal" id="staff-request-{{requestType}}-{{id}}" hidden aria-hidden="true">
+        <div class="servesync-modal-backdrop" data-modal-close="staff-request-{{requestType}}-{{id}}"></div>
+        <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="staff-request-title-{{id}}">
+          <button class="servesync-modal-close" type="button" aria-label="Close request details" data-modal-close="staff-request-{{requestType}}-{{id}}">&times;</button>
+          <span class="servesync-kicker">{{requestType}} REQUEST #{{id}}</span>
+          <h2 id="staff-request-title-{{id}}">{{customer_name}}</h2>
+          <dl class="servesync-request-details">
+            <div><dt>Contact</dt><dd>{{contact_number}}</dd></div>
+            {{#if customer.email}}<div><dt>Email</dt><dd>{{customer.email}}</dd></div>{{else}}{{#if email}}<div><dt>Email</dt><dd>{{email}}</dd></div>{{/if}}{{/if}}
+            {{#if isCatering}}
+              <div><dt>Event date and time</dt><dd>{{event_date}} at {{event_time}}</dd></div><div><dt>Event location</dt><dd>{{event_location}}</dd></div><div><dt>Guests</dt><dd>{{guest_count}}</dd></div><div><dt>Package / food preferences</dt><dd>{{food_preferences}}</dd></div>
+            {{else}}
+              <div><dt>Delivery date and time</dt><dd>{{requested_date}} at {{preferred_time}}</dd></div><div><dt>Delivery address</dt><dd>{{delivery_address}}</dd></div><div><dt>Order details</dt><dd>{{order_details}}</dd></div>
+            {{/if}}
+            {{#if special_instructions}}<div><dt>Special instructions</dt><dd>{{special_instructions}}</dd></div>{{/if}}
+          </dl>
+          <div class="ss-modal-actions"><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="staff-request-{{requestType}}-{{id}}">Close</button></div>
+        </section>
       </div>
-    {{else}}
-      <p class="servesync-empty">There are no approved {{ requestType }} requests at this time.</p>
-    {{/if}}
+      {{/each}}
     </main>
   </div>
-  {{> footer }}
+  <script src="/js/admin.js" defer></script>
+{{> footer }}

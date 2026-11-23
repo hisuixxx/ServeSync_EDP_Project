@@ -1,0 +1,13 @@
+<header class="ss-admin-topbar">
+  <div class="ss-admin-page-title">
+    <span class="servesync-kicker">&mdash; {{adminSection}}</span>
+    <h1>{{adminPageTitle}}</h1>
+  </div>
+  <div class="ss-admin-topbar-user">
+    <div class="ss-admin-welcome">
+      <strong>Welcome, {{currentUser.full_name}}</strong>
+      <span>{{currentUser.email}} &middot; {{currentUser.status}}</span>
+    </div>
+    <a class="ss-admin-logout" href="/logout">Log out</a>
+  </div>
+</header>

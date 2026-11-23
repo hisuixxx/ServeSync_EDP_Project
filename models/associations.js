@@ -11,6 +11,7 @@ import { OrderItem } from "./Orderitem.js";
 import { Payment } from "./Payment.js";
 import { Notification } from "./Notification.js";
 import { Auditlog } from "./Auditlog.js";
+import { StorefrontSetting } from "./StorefrontSetting.js";
 
 Category.hasMany(Product, { foreignKey: "category_id", as: "products", onDelete: "RESTRICT" });
 Product.belongsTo(Category, { foreignKey: "category_id", as: "category" });
@@ -47,4 +48,4 @@ User.hasMany(Notification, { foreignKey: "user_id", as: "notifications", onDelet
 Notification.belongsTo(User, { foreignKey: "user_id", as: "user" });
 Auditlog.belongsTo(User, { foreignKey: "user_id", as: "actor" });
 
-export { Category, Product, User, Cart, CartItem, CateringRequest, DeliveryRequest, RequestStatusHistory, Order, OrderItem, Payment, Notification, Auditlog };
+export { Category, Product, User, Cart, CartItem, CateringRequest, DeliveryRequest, RequestStatusHistory, Order, OrderItem, Payment, Notification, Auditlog, StorefrontSetting };

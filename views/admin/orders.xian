@@ -3,61 +3,81 @@
 <div class="ss-admin-layout">
   {{> admin-sidebar}}
   <main class="ss-admin-main">
+    {{> admin-topbar adminSection="ORDER MANAGEMENT" adminPageTitle="Orders"}}
     {{> flash-messages}}
-    
-    <header class="ss-admin-top">
-      <h1>Orders</h1>
-      <a href="/admin/payments">Payment Verification</a>
-    </header>
+    <p class="ss-admin-page-action"><a class="servesync-button servesync-button-ghost" href="/admin/payments">Payment Verification</a></p>
 
     <section class="ss-panel">
-      <form method="get">
-        <select name="status">
-          <option value="">All statuses</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="preparing">Preparing</option>
-          <option value="ready">Ready</option>
-          <option value="out_for_delivery">Out for delivery</option>
-          <option value="completed">Completed</option>
-          <option value="rejected">Rejected</option>
-          <option value="cancelled">Cancelled</option>
-        </select>
-        <button class="ss-small-button">Filter</button>
+      <h2>Orders</h2>
+      <form method="get" class="ss-order-filter-form">
+        <label>Status
+          <select name="status">
+            <option value="" {{#unless selectedStatus}}selected{{/unless}}>All statuses</option>
+            <option value="pending" {{#eq selectedStatus "pending"}}selected{{/eq}}>Pending</option>
+            <option value="approved" {{#eq selectedStatus "approved"}}selected{{/eq}}>Approved</option>
+            <option value="preparing" {{#eq selectedStatus "preparing"}}selected{{/eq}}>Preparing</option>
+            <option value="ready" {{#eq selectedStatus "ready"}}selected{{/eq}}>Ready</option>
+            <option value="out_for_delivery" {{#eq selectedStatus "out_for_delivery"}}selected{{/eq}}>Out for delivery</option>
+            <option value="completed" {{#eq selectedStatus "completed"}}selected{{/eq}}>Completed</option>
+            <option value="rejected" {{#eq selectedStatus "rejected"}}selected{{/eq}}>Rejected</option>
+            <option value="cancelled" {{#eq selectedStatus "cancelled"}}selected{{/eq}}>Cancelled</option>
+          </select>
+        </label>
+        <button class="ss-small-button" type="submit">Filter</button>
       </form>
-
       <div class="ss-table-wrap">
         <table class="ss-table" data-table>
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>Payment</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
+          <thead><tr><th>Order</th><th>Customer</th><th>Total</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
             {{#each orders}}
             <tr>
               <td>{{order_number}}</td>
               <td>{{customer.full_name}}<br><small>{{customer.email}}</small></td>
-              <td>₱{{total_amount}}</td>
+              <td>PHP {{total_amount}}</td>
               <td>{{payment.status}}</td>
               <td>{{status}}</td>
-              <td><a href="/admin/orders/{{id}}">Details</a></td>
+              <td><button class="ss-small-button ss-secondary" type="button" data-modal-open="admin-order-{{id}}">View / update</button></td>
             </tr>
-            {{else}}
-            <tr>
-              <td colspan="6">No orders found.</td>
-            </tr>
-            {{/each}}
+            {{else}}<tr><td colspan="6">No orders found.</td></tr>{{/each}}
           </tbody>
         </table>
       </div>
     </section>
+
+    {{#each orders}}
+    <div class="servesync-modal ss-order-detail-modal" id="admin-order-{{id}}" hidden aria-hidden="true">
+      <div class="servesync-modal-backdrop" data-modal-close="admin-order-{{id}}"></div>
+      <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="admin-order-title-{{id}}">
+        <button class="servesync-modal-close" type="button" aria-label="Close order details" data-modal-close="admin-order-{{id}}">&times;</button>
+        <span class="servesync-kicker">ORDER MANAGEMENT · {{status}}</span>
+        <h2 id="admin-order-title-{{id}}">{{order_number}}</h2>
+        <dl class="servesync-request-details">
+          <div><dt>Customer</dt><dd>{{customer.full_name}} · {{customer.email}}</dd></div>
+          <div><dt>Contact</dt><dd>{{customer.phone}}</dd></div>
+          <div><dt>Order type</dt><dd>{{order_type}}</dd></div>
+          {{#if delivery_address}}<div><dt>Delivery address</dt><dd>{{delivery_address}}</dd></div>{{/if}}
+          <div><dt>Payment</dt><dd>{{payment.method}} · {{payment.status}}{{#if payment.reference_code}} · Ref {{payment.reference_code}}{{/if}}</dd></div>
+          <div><dt>Total</dt><dd>PHP {{total_amount}}</dd></div>
+          {{#if notes}}<div><dt>Special instructions</dt><dd>{{notes}}</dd></div>{{/if}}
+        </dl>
+        <h3>Items</h3>
+        <div class="ss-table-wrap"><table class="ss-table ss-modal-items-table"><thead><tr><th>Item</th><th>Qty</th><th>Subtotal</th></tr></thead><tbody>
+          {{#each items}}<tr><td>{{product_name}}</td><td>{{quantity}}</td><td>PHP {{subtotal}}</td></tr>{{/each}}
+        </tbody></table></div>
+        {{#if canUpdate}}
+        <form class="ss-order-status-form" method="post" action="/admin/orders/{{id}}/status">
+          <input type="hidden" name="returnTo" value="/admin/orders">
+          <label>Next order status<select name="status" required>{{#each statusOptions}}<option value="{{value}}">{{label}}</option>{{/each}}</select></label>
+          <div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Update order</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="admin-order-{{id}}">Cancel</button></div>
+        </form>
+        {{else}}
+        <p class="ss-muted">No further status changes are available for this order.</p>
+        <div class="ss-modal-actions"><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="admin-order-{{id}}">Close</button></div>
+        {{/if}}
+      </section>
+    </div>
+    {{/each}}
   </main>
 </div>
-<script src="/js/admin.js"></script>
+<script src="/js/admin.js" defer></script>
 {{> footer }}

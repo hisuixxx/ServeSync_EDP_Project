@@ -25,6 +25,7 @@
 import { randomUUID } from "node:crypto";
 import { sequelize } from "../models/db.js";
 import { Cart, CartItem, Product, Order, OrderItem, Payment, Notification } from "../models/associations.js";
+import { getStorefrontSettings } from "../models/StorefrontSetting.js";
 
 const safeText = (v, max = 500) => String(v ?? "").trim().slice(0, max);
 
@@ -34,7 +35,14 @@ export const checkoutPage = async (req, res) => {
       where: { user_id: req.user.id, status: "active" },
       include: [{ model: CartItem, as: "items", include: [{ model: Product, as: "product" }] }],
     });
-    const items = (cart?.items || []).filter(i => i.product && i.product.status === "active" && i.product.availability);
+    const storefront = await getStorefrontSettings();
+    const hiddenIds = new Set((Array.isArray(storefront.hidden_product_ids) ? storefront.hidden_product_ids : []).map(Number));
+    const cartItems = cart?.items || [];
+    if (cartItems.some(item => !item.product || item.product.status !== "active" || !item.product.availability || hiddenIds.has(Number(item.product_id)))) {
+      req.flash("error_msg", "Your cart contains an item that is no longer available. Review your cart before checkout.");
+      return res.redirect("/cart");
+    }
+    const items = cartItems;
     if (!items.length) {
       req.flash("error_msg", "Your cart is empty or contains unavailable products.");
       return res.redirect("/cart");
@@ -82,9 +90,12 @@ export const placeCheckoutOrder = async (req, res) => {
       lock: transaction.LOCK.UPDATE,
     });
     if (!cart || !cart.items.length) throw new Error("Your cart is empty.");
+    const storefront = await getStorefrontSettings();
+    const hiddenIds = new Set((Array.isArray(storefront.hidden_product_ids) ? storefront.hidden_product_ids : []).map(Number));
     let total = 0;
     const lines = [];
     for (const item of cart.items) {
+      if (hiddenIds.has(Number(item.product_id))) throw new Error(`${item.product?.product_name || "An item"} is no longer listed on the store menu. Remove it and try again.`);
       const product = await Product.findOne({ where: { id: item.product_id, status: "active", availability: true }, transaction, lock: transaction.LOCK.UPDATE });
       if (!product) throw new Error(`The item ${item.product?.product_name || "in your cart"} is no longer available. Remove it and try again.`);
       const unitPrice = Number(product.price);

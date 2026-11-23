@@ -1,63 +1,97 @@
 {{> head }}
-<body class="servesync-body">
+<body class="servesync-body menu-page">
   {{#if isCustomer}}
-  <div class="ss-admin-layout">
-    {{> admin-sidebar}}
-    <main class="ss-admin-main servesync-shell servesync-page">
+  <div class="ss-admin-layout">{{> admin-sidebar}}<main class="ss-admin-main menu-main">
+  {{else if isAdmin}}
+  <div class="ss-admin-layout">{{> admin-sidebar}}<main class="ss-admin-main menu-main">
+  {{else if isStaff}}
+  <div class="ss-admin-layout">{{> admin-sidebar}}<main class="ss-admin-main menu-main">
   {{else}}
-  {{> header}}
-  <main class="servesync-shell servesync-page">
+  <main class="menu-main menu-main-public">
   {{/if}}
+    {{#if isAdmin}}{{> admin-topbar adminSection="STORE" adminPageTitle="Menu"}}{{/if}}
+    {{#if isStaff}}{{> admin-topbar adminSection="STAFF WORKSPACE" adminPageTitle="Store"}}{{/if}}
+    {{#if isCustomer}}{{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Menu"}}{{/if}}
+    {{#unless isAuthenticated}}
+    <header class="menu-topbar">
+      <a class="servesync-logo" href="/" aria-label="ServeSync home">ServeSync</a>
+      <a class="menu-back-home" href="/">← Back to Home</a>
+    </header>
+    {{/unless}}
     {{> flash-messages}}
-    <header class="servesync-page-heading">
+    {{#if canCustomizeStore}}
+    <section class="store-customizer" aria-labelledby="store-customizer-title">
+      <div class="store-customizer-heading">
+        <div><span class="servesync-kicker">STOREFRONT CONTROL</span><h2 id="store-customizer-title">Store customizer &amp; preview</h2><p>Changes saved here are shown on the public landing page and menu.</p></div>
+        <button class="servesync-button servesync-button-primary" type="button" data-modal-open="landing-page-editor">Edit Landing Page</button>
+      </div>
+      <div class="storefront-live-preview">
+        <img src="{{storefrontSettings.hero_image_url}}" alt="" loading="lazy" data-storefront-preview-image data-fallback="https://images.unsplash.com/photo-1579027989536-b7b1f875659b?auto=format&amp;fit=crop&amp;w=2000&amp;q=84" onerror="if(this.dataset.fallbackUsed){this.hidden=true}else{this.dataset.fallbackUsed='true';this.src=this.dataset.fallback}">
+        <div class="storefront-live-preview-content"><span class="servesync-kicker">LIVE LANDING PREVIEW</span><h3 data-preview-headline>{{storefrontSettings.hero_headline}}</h3><p data-preview-subtitle>{{storefrontSettings.hero_subtitle}}</p><span class="servesync-button servesync-button-primary" data-preview-cta>{{storefrontSettings.hero_cta_label}}</span></div>
+        <a class="storefront-preview-open" href="/" target="_blank" rel="noopener">Open customer landing page ↗</a>
+      </div>
+
+      <form class="storefront-menu-settings" method="post" action="/storefront/menu-settings">
+        <div class="storefront-settings-heading"><div><span class="servesync-kicker">MENU VISIBILITY</span><h3>Choose what customers see</h3><p>Featured products appear first in the menu and in the landing page favorites. Hidden products are removed from the customer menu.</p></div></div>
+        <fieldset class="storefront-category-settings"><legend>Featured categories</legend><p>Choose categories and set their order in the customer menu filter.</p><div class="storefront-category-grid">
+          {{#each categories}}
+          <label class="storefront-category-option"><span><input type="checkbox" name="featuredCategoryIds" value="{{id}}" {{#if isFeatured}}checked{{/if}}><strong>{{category_name}}</strong></span><input class="storefront-order-input" type="number" name="featuredCategoryOrder[{{id}}]" min="1" max="99" value="{{featuredOrder}}" aria-label="Featured order for {{category_name}}" placeholder="Order"></label>
+          {{else}}<p class="servesync-empty">No active categories to feature.</p>{{/each}}
+        </div></fieldset>
+        <fieldset class="storefront-product-settings"><legend>Products</legend><div class="storefront-product-grid">
+          {{#each managerProducts}}
+          <article class="storefront-product-option">
+            <div class="storefront-product-summary">{{#if image}}<img src="{{image}}" alt="" loading="lazy" onerror="this.hidden=true">{{else}}<span class="storefront-product-placeholder">SS</span>{{/if}}<span><strong>{{product_name}}</strong><small>{{category.category_name}} · ₱{{price}}</small></span></div>
+            <label class="storefront-toggle"><input type="checkbox" name="visibleProductIds" value="{{id}}" {{#if isVisible}}checked{{/if}}><span>Visible on menu</span></label>
+            <label class="storefront-toggle"><input type="checkbox" name="featuredProductIds" value="{{id}}" {{#if isFeatured}}checked{{/if}}><span>Feature on landing page</span></label>
+            <label class="storefront-order-label">Featured position<input class="storefront-order-input" type="number" name="featuredProductOrder[{{id}}]" min="1" max="99" value="{{featuredOrder}}" placeholder="—"></label>
+          </article>
+          {{else}}<p class="servesync-empty">No active products available to customize.</p>{{/each}}
+        </div></fieldset>
+        <div class="storefront-settings-footer"><button class="servesync-button servesync-button-primary" type="submit">Save Menu Display</button></div>
+      </form>
+    </section>
+
+    <div class="servesync-modal storefront-editor-modal" id="landing-page-editor" hidden aria-hidden="true">
+      <div class="servesync-modal-backdrop" data-modal-close="landing-page-editor"></div>
+      <section class="servesync-modal-card storefront-editor-card" role="dialog" aria-modal="true" aria-labelledby="landing-page-editor-title">
+        <button class="servesync-modal-close" type="button" aria-label="Close landing page editor" data-modal-close="landing-page-editor">&times;</button>
+        <span class="servesync-kicker">CUSTOMER LANDING PAGE</span><h2 id="landing-page-editor-title">Edit landing page</h2><p>Update the public hero copy, image, and menu button label.</p>
+        <form class="storefront-landing-form" method="post" action="/storefront/landing-settings">
+          <label>Hero headline<input name="heroHeadline" maxlength="180" value="{{storefrontSettings.hero_headline}}" required data-preview-input="headline"></label>
+          <label>Subtitle<textarea name="heroSubtitle" maxlength="500" rows="3" required data-preview-input="subtitle">{{storefrontSettings.hero_subtitle}}</textarea></label>
+          <label>Menu button label<input name="heroCtaLabel" maxlength="60" value="{{storefrontSettings.hero_cta_label}}" required data-preview-input="cta"></label>
+          <label>Hero image URL<input type="text" name="heroImageUrl" maxlength="2048" value="{{storefrontSettings.hero_image_url}}" required data-preview-input="image" placeholder="https://... or /uploads/photo.jpg"></label>
+          <div class="storefront-image-preview"><img src="{{storefrontSettings.hero_image_url}}" alt="Current hero image preview" data-editor-image-preview data-fallback="https://images.unsplash.com/photo-1579027989536-b7b1f875659b?auto=format&amp;fit=crop&amp;w=2000&amp;q=84" onerror="if(this.dataset.fallbackUsed){this.hidden=true}else{this.dataset.fallbackUsed='true';this.src=this.dataset.fallback}"><span>Image preview</span></div>
+          <div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Save Landing Page</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="landing-page-editor">Cancel</button></div>
+        </form>
+      </section>
+    </div>
+    {{/if}}
+    <header class="servesync-page-heading menu-heading">
       <div>
-        <span class="servesync-kicker">SERVESYNC MENU</span>
-        <h1>Explore our menu</h1>
+        <span class="servesync-kicker menu-eyebrow">SERVESYNC MENU</span>
+        <h1>Explore our <span class="menu-title-accent">menu</span></h1>
         <p>Freshly prepared favorites, with clear descriptions and prices.</p>
       </div>
-      {{#unless isCustomer}}
-        <div class="ss-menu-requests">
-          <a href="/request/catering">Request Catering</a>
-          <a href="/request/delivery">Request Delivery</a>
-        </div>
-      {{/unless}}
     </header>
-    {{#if menuError}}
-    <p class="servesync-notice">{{menuError}}</p>
-    {{/if}}
+    {{#if menuError}}<p class="servesync-notice">{{menuError}}</p>{{/if}}
     <form method="get" action="/menu" class="ss-menu-filter">
-      <input name="search" value="{{search}}" placeholder="Search dishes">
-      <select name="category"><option value="">All categories</option>
-        {{#each categories}}
-        <option value="{{id}}">
-          {{category_name}}
-        </option>
-        {{/each}}
-      </select>
-      <button class="ss-small-button">Search</button>
+      <label class="menu-search-wrap"><span class="sr-only">Search dishes</span><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 5 5"></path></svg><input name="search" value="{{search}}" placeholder="Search dishes" autocomplete="off"></label>
+      <label class="sr-only" for="menu-category">Filter by category</label>
+      <select id="menu-category" name="category"><option value="">All categories</option>{{#each categories}}<option value="{{id}}" {{#if isSelected}}selected{{/if}}>{{category_name}}</option>{{/each}}</select>
+      <button class="ss-small-button" type="submit">Search</button>
     </form>
-    <section class="servesync-menu-grid">
+    <section class="servesync-menu-grid" aria-label="Available menu items">
       {{#each products}}
-      <a class="servesync-menu-card" href="/menu/{{id}}">
-        {{#if image}}
-        <img src="{{image}}" alt="{{product_name}}">
-        {{else}}
-        <div class="ss-product-placeholder">ServeSync</div>
-        {{/if}}
-        <div>
-          <small>
-            {{category.category_name}}
-          </small>
-          <h2>{{product_name}}</h2>
-          <p>{{description}}</p>
-          <strong>₱{{price}}</strong>
-        </div>
-      </a>
-      {{else}}
-      <p>No menu items are currently available.</p>
-      {{/each}}
+      <article class="servesync-menu-card">
+        <a class="menu-card-link" href="/menu/{{id}}">{{#if image}}<img src="{{image}}" alt="{{product_name}}" loading="lazy" onerror="this.hidden=true">{{else}}<div class="ss-product-placeholder">ServeSync</div>{{/if}}<div class="menu-card-content"><small class="menu-card-category">{{category.category_name}}</small><h2>{{product_name}}</h2></div></a>
+        <div class="menu-card-details"><p class="menu-description" data-description>{{description}}</p><button class="menu-description-toggle" type="button" data-see-more hidden>See more</button><strong>₱{{price}}</strong></div>
+      </article>
+      {{else}}<p class="servesync-empty menu-empty">No menu items are currently available.</p>{{/each}}
     </section>
   </main>
-  {{#if isCustomer}}</div>{{/if}}
-  {{> footer }}
- 
+  {{#if isCustomer}}</div>{{/if}}{{#if isAdmin}}</div>{{/if}}{{#if isStaff}}</div>{{/if}}
+  <script src="/js/menu.js" defer></script>
+  <script src="/js/store-customizer.js" defer></script>
+{{> footer }}

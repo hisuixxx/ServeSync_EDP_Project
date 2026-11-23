@@ -3,9 +3,9 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Notifications"}}
     {{> flash-messages}}
 
-    <h1>Notifications</h1>
 
     {{#each notifications}}
       <article class="ss-panel">

@@ -59,7 +59,7 @@ export const adminCreateProduct = async (req, res) => {
   try {
     const category = await Category.findOne({ where: { id: categoryId, status: "active" } });
     if (!category) { req.flash("error_msg", "Choose an active category."); return res.redirect("/admin/products"); }
-    const product = await Product.create({ category_id: categoryId, product_name: name, description: String(req.body.description || "").trim(), price: price.toFixed(2), image: req.file ? `/uploads/${req.file.filename}` : (String(req.body.image || "").trim() || null), availability: req.body.availability === "on", status: "active" });
+    const product = await Product.create({ category_id: categoryId, product_name: name, description: String(req.body.description || "").trim(), price: price.toFixed(2), image: req.file ? `/uploads/${req.file.filename}` : (String(req.body.image || "").trim() || null), availability: true, status: "active" });
     await writeAudit(req, "create_product", "Product", product.id, { product_name: name }); req.flash("success_msg", "Product created."); res.redirect("/admin/products");
   } catch (error) { console.error("Create product:", error); req.flash("error_msg", "Unable to create product."); res.redirect("/admin/products"); }
 };

@@ -43,7 +43,7 @@ export const staffProducts = async (req, res) => {
 export const staffCreateProduct = async (req, res) => {
   const productName = String(req.body.product_name || "").trim(); const price = Number(req.body.price); const categoryId = Number(req.body.category_id);
   try { const category = await Category.findOne({ where: { id: categoryId, status: "active" } }); if (!productName || !category || !Number.isFinite(price) || price <= 0) { req.flash("error_msg", "Enter valid product details."); return res.redirect("/staff/products"); }
-    const product = await Product.create({ category_id: categoryId, product_name: productName, description: String(req.body.description || "").trim(), price: price.toFixed(2), image: req.file ? `/uploads/${req.file.filename}` : (String(req.body.image || "").trim() || null), availability: req.body.availability === "on", status: "active" });
+    const product = await Product.create({ category_id: categoryId, product_name: productName, description: String(req.body.description || "").trim(), price: price.toFixed(2), image: req.file ? `/uploads/${req.file.filename}` : (String(req.body.image || "").trim() || null), availability: true, status: "active" });
     await writeAudit(req, "staff_create_product", "Product", product.id, { product_name: productName }); req.flash("success_msg", "Product added.");
   } catch (error) { console.error(error); req.flash("error_msg", "Unable to add product."); } res.redirect("/staff/products");
 };
@@ -56,7 +56,20 @@ export const staffUpdateProduct = async (req, res) => {
   } catch (error) { console.error(error); req.flash("error_msg", "Unable to update product."); } res.redirect("/staff/products");
 };
 export const staffOrders = async (req, res) => {
-  try { const orders = await Order.findAll({ where: { status: ["approved", "preparing", "ready", "out_for_delivery"] }, include: [{ model: User, as: "customer", attributes: ["full_name", "phone"] }, { model: OrderItem, as: "items" }, { model: Payment, as: "payment" }], order: [["createdAt", "DESC"]] }); res.render("staff/orders", { title: "ServeSync Staff | Orders", orders: orders.map(o => o.get({ plain: true })) }); }
+  try {
+    const orders = await Order.findAll({ where: { status: ["approved", "preparing", "ready", "out_for_delivery"] }, include: [{ model: User, as: "customer", attributes: ["full_name", "phone"] }, { model: OrderItem, as: "items" }, { model: Payment, as: "payment" }], order: [["createdAt", "DESC"]] });
+    const transitions = { approved: ["preparing"], preparing: ["ready"], ready: ["out_for_delivery"], out_for_delivery: [] };
+    const rows = orders.map(order => {
+      const plain = order.get({ plain: true });
+      const allowedStatuses = plain.status === "ready" && plain.order_type !== "delivery" ? [] : transitions[plain.status] || [];
+      return {
+        ...plain,
+        canUpdate: allowedStatuses.length > 0,
+        statusOptions: allowedStatuses.map(value => ({ value, label: value === "out_for_delivery" ? "Out for delivery" : value[0].toUpperCase() + value.slice(1) })),
+      };
+    });
+    res.render("staff/orders", { title: "ServeSync Staff | Orders", orders: rows });
+  }
   catch (error) { console.error(error); res.status(500).send("Unable to load orders."); }
 };
 export const staffUpdateOrderStatus = async (req, res) => {

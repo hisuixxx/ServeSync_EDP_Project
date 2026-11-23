@@ -3,12 +3,13 @@
 <div class="ss-admin-layout">
   {{> admin-sidebar}}
   <main class="ss-admin-main">
+    {{> admin-topbar adminSection="ORDER MANAGEMENT" adminPageTitle="Order details"}}
     {{> flash-messages}}
     
     <a href="/admin/orders">← Orders</a>
-    <h1>{{order.order_number}}</h1>
     
     <section class="ss-panel">
+      <h2>Order {{order.order_number}}</h2>
       <p>Customer: {{order.customer.full_name}} ({{order.customer.email}})</p>
       <p>Order type: {{order.order_type}}</p>
       <p>Address: {{order.delivery_address}}</p>

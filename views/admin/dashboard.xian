@@ -3,17 +3,10 @@
 <div class="ss-admin-layout">
   {{> admin-sidebar}}
   <main class="ss-admin-main">
+    {{> admin-topbar adminSection="WORKSPACE" adminPageTitle="Dashboard"}}
     {{> flash-messages}}
     
-    <header class="ss-admin-top">
-      <div>
-        <span class="servesync-kicker">ADMINISTRATION</span>
-        <h1>Dashboard</h1>
-      </div>
-      <span>Welcome, {{currentUser.full_name}}</span>
-    </header>
-
-    <section class="ss-stat-grid">
+    <section class="ss-stat-grid ss-dashboard-stat-grid">
       <article><span>Active Products</span><strong>{{stats.products}}</strong></article>
       <article><span>Archived Products</span><strong>{{stats.archived}}</strong></article>
       <article><span>Customers</span><strong>{{stats.users}}</strong></article>

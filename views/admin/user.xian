@@ -3,96 +3,63 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main">
+      {{> admin-topbar adminSection="ACCESS CONTROL" adminPageTitle="User Management"}}
       {{> flash-messages}}
-      
-      <header class="ss-admin-top">
-        <div>
-          <span class="servesync-kicker">ACCESS CONTROL</span>
-          <h1>User Management</h1>
+
+      <section class="ss-panel">
+        <div class="ss-user-management-heading">
+          <h2>Accounts</h2>
+          <button class="servesync-button servesync-button-primary" type="button" data-modal-open="create-staff-modal">+ Create Staff</button>
         </div>
-      </header>
-
-      <section class="ss-panel">
-        <h2>Create Staff Account</h2>
-        <form method="post" action="/admin/users/staff" class="ss-form-grid">
-          <label>Full name
-            <input name="full_name" required>
-          </label>
-          <label>Email
-            <input type="email" name="email" required>
-          </label>
-          <label>Temporary password
-            <input type="password" name="password" minlength="12" required>
-          </label>
-          <button class="servesync-button servesync-button-primary">Create Staff</button>
+        <form method="get" action="/admin/users" class="ss-live-search" data-live-filter-form>
+          <label class="sr-only" for="user-search">Search by ID, name, or email</label>
+          <input id="user-search" name="search" value="{{search}}" placeholder="Search ID, name, or email" type="search" data-table-search>
         </form>
-      </section>
-
-      <section class="ss-panel">
-        <form method="get" action="/admin/users">
-          <input name="search" value="{{search}}" placeholder="Search name or email">
-          <button class="ss-small-button">Search</button>
-        </form>
-
         <div class="ss-table-wrap">
           <table class="ss-table" data-table>
-            <thead>
-              <tr>
-                <th>User</th>
-                <th>Role / Status</th>
-                <th>Update</th>
-                <th>Reset password</th>
-                <th>Delete</th>
-              </tr>
-            </thead>
+            <thead><tr><th>User ID</th><th>User</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody>
               {{#each users}}
               <tr>
-                <td>
-                  {{full_name}}<br>
-                  <small>{{email}}</small>
-                </td>
-                <td>
-                  {{role}} / {{status}}
-                </td>
-                <td>
-                  <form method="post" action="/admin/users/{{id}}/update" class="ss-user-edit">
-                    <input name="full_name" value="{{full_name}}" required>
-                    <input name="phone" value="{{phone}}" placeholder="Phone">
-                    <select name="role">
-                      <option value="customer" {{#if isCustomer}}selected{{/if}}>Customer</option>
-                      <option value="staff" {{#if isStaff}}selected{{/if}}>Staff</option>
-                      <option value="admin" {{#if isAdmin}}selected{{/if}}>Admin</option>
-                    </select>
-                    <select name="status">
-                      <option value="active" {{#if isActive}}selected{{/if}}>Active</option>
-                      <option value="inactive" {{#if isInactive}}selected{{/if}}>Inactive</option>
-                    </select>
-                    <button class="ss-small-button">Save</button>
-                  </form>
-                </td>
-                <td>
-                  <form method="post" action="/admin/users/{{id}}/password">
-                    <input type="password" name="new_password" minlength="12" placeholder="New password" required>
-                    <button class="ss-small-button">Reset</button>
-                  </form>
-                </td>
-                <td>
-                  <form method="post" action="/admin/users/{{id}}/delete" onsubmit="return confirm('Delete this user if no linked records exist?')">
-                    <button class="ss-small-button ss-danger">Delete</button>
-                  </form>
+                <td>{{id}}</td><td><strong>{{full_name}}</strong><br><small>{{email}}</small></td><td>{{role}}</td><td>{{status}}</td>
+                <td class="ss-actions-cell">
+                  <button class="ss-small-button" type="button" data-modal-open="user-edit-{{id}}">Edit</button>
+                  <button class="ss-small-button ss-secondary" type="button" data-modal-open="user-password-{{id}}">Reset password</button>
+                  {{#unless isAdmin}}<button class="ss-small-button ss-danger" type="button" data-modal-open="user-delete-{{id}}">Delete</button>{{/unless}}
                 </td>
               </tr>
-              {{else}}
-              <tr>
-                <td colspan="5">No users found.</td>
-              </tr>
-              {{/each}}
+              {{else}}<tr><td colspan="5">No users found.</td></tr>{{/each}}
             </tbody>
           </table>
         </div>
+        <p class="ss-table-empty" hidden>No accounts match your search.</p>
       </section>
+
+      <div class="servesync-modal ss-create-staff-modal" id="create-staff-modal" hidden aria-hidden="true">
+        <div class="servesync-modal-backdrop" data-modal-close="create-staff-modal"></div>
+        <section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="create-staff-title">
+          <button class="servesync-modal-close" type="button" aria-label="Close staff creation form" data-modal-close="create-staff-modal">&times;</button>
+          <span class="servesync-kicker">ACCESS CONTROL</span>
+          <h2 id="create-staff-title">Create Staff Account</h2>
+          <p>Create a staff login with limited operational access.</p>
+          <form method="post" action="/admin/users/staff" class="ss-form-grid ss-staff-create-form">
+            <label>Full name<input name="full_name" maxlength="150" autocomplete="name" required></label>
+            <label>Email<input type="email" name="email" maxlength="255" autocomplete="email" required></label>
+            <label class="ss-wide">Temporary password<input type="password" name="password" minlength="12" autocomplete="new-password" required></label>
+            <div class="ss-modal-actions ss-wide">
+              <button class="servesync-button servesync-button-primary" type="submit">Create Staff</button>
+              <button class="servesync-button servesync-button-ghost" type="button" data-modal-close="create-staff-modal">Cancel</button>
+            </div>
+          </form>
+        </section>
+      </div>
+
+      {{#each users}}
+      <div class="servesync-modal" id="user-edit-{{id}}" hidden aria-hidden="true"><div class="servesync-modal-backdrop" data-modal-close="user-edit-{{id}}"></div><section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="user-edit-title-{{id}}"><button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="user-edit-{{id}}">&times;</button><div class="servesync-kicker">User account</div><h2 id="user-edit-title-{{id}}">Edit {{full_name}}</h2><form method="post" action="/admin/users/{{id}}/update" class="ss-edit-form"><label>Full name<input name="full_name" value="{{full_name}}" required></label><label>Phone<input name="phone" value="{{phone}}" placeholder="Phone"></label><label>Role<select name="role"><option value="customer" {{#if isCustomer}}selected{{/if}}>Customer</option><option value="staff" {{#if isStaff}}selected{{/if}}>Staff</option><option value="admin" {{#if isAdmin}}selected{{/if}}>Admin</option></select></label><label>Account status<select name="status"><option value="active" {{#if isActive}}selected{{/if}}>Active</option><option value="inactive" {{#if isInactive}}selected{{/if}}>Inactive</option></select></label><div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Save changes</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="user-edit-{{id}}">Cancel</button></div></form></section></div>
+      <div class="servesync-modal" id="user-password-{{id}}" hidden aria-hidden="true"><div class="servesync-modal-backdrop" data-modal-close="user-password-{{id}}"></div><section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="user-password-title-{{id}}"><button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="user-password-{{id}}">&times;</button><div class="servesync-kicker">Security</div><h2 id="user-password-title-{{id}}">Reset password</h2><p>Set a new temporary password for {{full_name}}.</p><form method="post" action="/admin/users/{{id}}/password" class="ss-edit-form"><label>New password<input type="password" name="new_password" minlength="12" autocomplete="new-password" required></label><div class="ss-modal-actions"><button class="servesync-button servesync-button-primary" type="submit">Reset password</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="user-password-{{id}}">Cancel</button></div></form></section></div>
+      {{#unless isAdmin}}<div class="servesync-modal" id="user-delete-{{id}}" hidden aria-hidden="true"><div class="servesync-modal-backdrop" data-modal-close="user-delete-{{id}}"></div><section class="servesync-modal-card" role="dialog" aria-modal="true" aria-labelledby="user-delete-title-{{id}}"><button class="servesync-modal-close" type="button" aria-label="Close" data-modal-close="user-delete-{{id}}">&times;</button><div class="servesync-kicker">Destructive action</div><h2 id="user-delete-title-{{id}}">Delete {{full_name}}?</h2><p>This cannot be undone. Accounts with linked records may need to be deactivated instead.</p><form method="post" action="/admin/users/{{id}}/delete" class="ss-modal-actions"><button class="servesync-button ss-danger" type="submit">Delete account</button><button class="servesync-button servesync-button-ghost" type="button" data-modal-close="user-delete-{{id}}">Cancel</button></form></section></div>{{/unless}}
+      {{/each}}
     </main>
   </div>
-  <script src="/js/admin.js"></script>
+  <script src="/js/admin.js" defer></script>
 {{> footer }}

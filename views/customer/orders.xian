@@ -3,11 +3,16 @@
   <div class="ss-admin-layout">
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
+    {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="My Orders"}}
     {{> flash-messages}}
 
-    <h1>My Orders</h1>
+    <div class="ss-orders-table-actions" aria-label="Service request actions">
+      <button class="ss-orders-request-action" type="button" data-modal-open="orders-catering-modal">Request Catering</button>
+      <button class="ss-orders-request-action" type="button" data-modal-open="orders-delivery-modal">Request Delivery</button>
+    </div>
 
     <section class="ss-panel">
+      <div class="ss-table-wrap">
       <table class="ss-table" data-table>
         <thead>
           <tr>
@@ -36,7 +41,54 @@
           {{/each}}
         </tbody>
       </table>
+      </div>
     </section>
+    <div class="servesync-modal ss-service-request-modal" id="orders-catering-modal" hidden aria-hidden="true">
+      <div class="servesync-modal-backdrop" data-modal-close="orders-catering-modal"></div>
+      <section class="servesync-modal-card ss-request-modal-card" role="dialog" aria-modal="true" aria-labelledby="orders-catering-title">
+        <button class="servesync-modal-close" type="button" aria-label="Close catering request" data-modal-close="orders-catering-modal">&times;</button>
+        <span class="servesync-kicker">PLAN YOUR EVENT</span>
+        <h2 id="orders-catering-title">Request catering</h2>
+        <p>Share your event details and our team will follow up about menu options.</p>
+        <form class="ss-request-modal-form" method="post" action="/request/catering">
+          <label>Customer name<input name="customerName" value="{{currentUser.full_name}}" maxlength="150" autocomplete="name" required></label>
+          <label>Contact number<input type="tel" name="contactNumber" value="{{currentUser.phone}}" maxlength="30" autocomplete="tel" pattern="\+?[0-9 ()-]{7,30}" required></label>
+          <label>Email address<input type="email" name="email" value="{{currentUser.email}}" maxlength="255" autocomplete="email" required></label>
+          <label>Event location<input name="eventLocation" maxlength="500" required></label>
+          <label>Event date<input type="date" name="eventDate" required></label>
+          <label>Event time<input type="time" name="eventTime" required></label>
+          <label>Number of guests<input type="number" name="guestCount" min="1" max="10000" step="1" required></label>
+          <label class="ss-request-modal-wide">Package or food preferences<textarea name="foodPreferences" maxlength="3000" rows="3" required></textarea></label>
+          <label class="ss-request-modal-wide">Special instructions<textarea name="specialInstructions" maxlength="2000" rows="2"></textarea></label>
+          <div class="ss-modal-actions ss-request-modal-wide">
+            <button class="servesync-button servesync-button-primary" type="submit">Submit catering request</button>
+            <button class="servesync-button servesync-button-ghost" type="button" data-modal-close="orders-catering-modal">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
+    <div class="servesync-modal ss-service-request-modal" id="orders-delivery-modal" hidden aria-hidden="true">
+      <div class="servesync-modal-backdrop" data-modal-close="orders-delivery-modal"></div>
+      <section class="servesync-modal-card ss-request-modal-card" role="dialog" aria-modal="true" aria-labelledby="orders-delivery-title">
+        <button class="servesync-modal-close" type="button" aria-label="Close delivery request" data-modal-close="orders-delivery-modal">&times;</button>
+        <span class="servesync-kicker">DELIVERY SERVICE</span>
+        <h2 id="orders-delivery-title">Request delivery</h2>
+        <p>Tell us where and when you need your order delivered.</p>
+        <form class="ss-request-modal-form" method="post" action="/request/delivery">
+          <label>Customer name<input name="customerName" value="{{currentUser.full_name}}" maxlength="150" autocomplete="name" required></label>
+          <label>Contact number<input type="tel" name="contactNumber" value="{{currentUser.phone}}" maxlength="30" autocomplete="tel" pattern="\+?[0-9 ()-]{7,30}" required></label>
+          <label class="ss-request-modal-wide">Delivery address<textarea name="deliveryAddress" maxlength="500" autocomplete="street-address" rows="2" required></textarea></label>
+          <label>Delivery date<input type="date" name="requestedDate" required></label>
+          <label>Preferred time<input type="time" name="preferredTime" required></label>
+          <label class="ss-request-modal-wide">Food preferences or order details<textarea name="orderDetails" maxlength="3000" rows="3" required></textarea></label>
+          <label class="ss-request-modal-wide">Special instructions<textarea name="specialInstructions" maxlength="2000" rows="2"></textarea></label>
+          <div class="ss-modal-actions ss-request-modal-wide">
+            <button class="servesync-button servesync-button-primary" type="submit">Submit delivery request</button>
+            <button class="servesync-button servesync-button-ghost" type="button" data-modal-close="orders-delivery-modal">Cancel</button>
+          </div>
+        </form>
+      </section>
+    </div>
     </main>
   </div>
 {{> footer }}
