@@ -15,7 +15,7 @@
       <p>Address: {{order.delivery_address}}</p>
       <p>Total: <strong>₱{{order.total_amount}}</strong></p>
       <p>Order status: {{order.status}}</p>
-      <p>Payment: {{order.payment.status}} / GCash / Reference: {{order.payment.reference_code}}</p>
+      <p>Payment: {{order.payment.methodLabel}} / {{order.payment.statusLabel}}{{#if order.payment.reference_code}} / Reference: {{order.payment.reference_code}}{{/if}}</p>
       
       <h2>Items</h2>
       <ul>
@@ -39,7 +39,7 @@
         <button class="servesync-button servesync-button-primary">Update Status</button>
       </form>
       
-      <p class="ss-muted">Orders can only be approved after GCash payment is verified.</p>
+      <p class="ss-muted">GCash payments must be verified before approval. Cash on Delivery orders can be approved before collection.</p>
     </section>
   </main>
 </div>

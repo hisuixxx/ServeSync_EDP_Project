@@ -10,6 +10,65 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Validate checkout and payment modules",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tests/validate-checkout.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Copy supplied GCash QR into private storage",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				".copy-attached-gcash-qr.mjs"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Validate checkout",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tests/validate-checkout.js"
+			],
+			"isBackground": false
+		},
+		{
+			"label": "Validate checkout and payment modules now",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tests/validate-checkout.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Synchronize ServeSync database schema",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"migrate.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Run final checkout validation",
+			"type": "shell",
+			"command": "node",
+			"args": [
+				"tests/validate-checkout.js"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	]
 }

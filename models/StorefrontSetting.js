@@ -10,6 +10,9 @@ export const StorefrontSetting = sequelize.define("StorefrontSetting", {
   featured_product_ids: { type: DataTypes.JSON, allowNull: true },
   hidden_product_ids: { type: DataTypes.JSON, allowNull: true },
   featured_category_ids: { type: DataTypes.JSON, allowNull: true },
+  gcash_account_name: { type: DataTypes.STRING(150), allowNull: false, defaultValue: "ServeSync Gcash" },
+  gcash_number: { type: DataTypes.STRING(30), allowNull: true },
+  gcash_qr_image: { type: DataTypes.STRING(255), allowNull: true },
 }, {
   tableName: "StorefrontSettings",
 });
@@ -23,6 +26,9 @@ export const DEFAULT_STOREFRONT_SETTINGS = Object.freeze({
   featured_product_ids: [],
   hidden_product_ids: [],
   featured_category_ids: [],
+  gcash_account_name: "ServeSync Gcash",
+  gcash_number: process.env.GCASH_NUMBER || "",
+  gcash_qr_image: process.env.GCASH_QR_IMAGE || "servesync-gcash.png",
 });
 
 export async function getStorefrontSettings() {
@@ -37,11 +43,17 @@ export async function getStorefrontSettings() {
     }
   }
   const plain = settings.get({ plain: true });
+  const defaultQrImage = process.env.GCASH_QR_IMAGE || "servesync-gcash.png";
   return {
     ...DEFAULT_STOREFRONT_SETTINGS,
     ...plain,
     featured_product_ids: Array.isArray(plain.featured_product_ids) ? plain.featured_product_ids : [],
     hidden_product_ids: Array.isArray(plain.hidden_product_ids) ? plain.hidden_product_ids : [],
     featured_category_ids: Array.isArray(plain.featured_category_ids) ? plain.featured_category_ids : [],
+    gcash_account_name: plain.gcash_account_name === "ServeSync Restaurant"
+      ? "ServeSync Gcash"
+      : plain.gcash_account_name || "ServeSync Gcash",
+    gcash_number: plain.gcash_number || process.env.GCASH_NUMBER || "",
+    gcash_qr_image: plain.gcash_qr_image || defaultQrImage,
   };
 }

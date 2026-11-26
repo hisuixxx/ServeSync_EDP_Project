@@ -1,0 +1,70 @@
+.servesync-auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0 12px;
+  color: var(--ss-muted);
+  font-size: .8rem;
+  font-weight: 700;
+}
+
+.servesync-auth-divider::before,
+.servesync-auth-divider::after {
+  height: 1px;
+  flex: 1;
+  background: var(--ss-border);
+  content: "";
+}
+
+.servesync-body a.servesync-google-button {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border: 1px solid #d5d9df;
+  border-radius: 10px;
+  background: #fff;
+  color: #30343b;
+  font-size: .94rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color .15s, box-shadow .15s;
+}
+
+.servesync-body a.servesync-google-button:hover {
+  background: #f7f9fc;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .14);
+}
+
+.servesync-body a.servesync-google-button:focus-visible {
+  outline: 3px solid var(--ss-green);
+  outline-offset: 3px;
+}
+
+.servesync-google-mark {
+  background: conic-gradient(from 220deg, #4285f4 0 25%, #34a853 25% 50%, #fbbc05 50% 75%, #ea4335 75%);
+  background-clip: text;
+  color: transparent;
+  font-family: Arial, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.servesync-google-setup {
+  margin: 10px 0 0;
+  color: var(--ss-muted);
+  font-size: .8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.servesync-profile-verification {
+  margin: 12px 0;
+  color: var(--ss-muted);
+  font-size: .9rem;
+}
+
+.servesync-verification-resend .servesync-button-wide {
+  width: 100%;
+}

@@ -4,6 +4,7 @@
     {{> admin-sidebar}}
     <main class="ss-admin-main servesync-shell servesync-page">
     {{> admin-topbar adminSection="MY ACCOUNT" adminPageTitle="Shopping cart"}}
+    {{> flash-messages}}
     <p class="ss-page-intro">Review your selected dishes and quantities before proceeding.</p>
     {{#if orderConfirmation}}
       <div class="servesync-notice servesync-order-success" role="status">{{ orderConfirmation }}</div>
@@ -26,7 +27,7 @@
               <div class="servesync-cart-product-details">
                 {{#if category_name}}<div class="servesync-card-category">{{ category_name }}</div>{{/if}}
                 <h2>{{ product_name }}</h2>
-                <p>Unit price: &#8369;{{ price }}</p>
+                <p>Unit price: {{ priceFormatted }}</p>
               </div>
             </div>
             <div class="servesync-cart-quantity" aria-label="Quantity controls for {{ product_name }}">
@@ -40,7 +41,7 @@
             </div>
             <div class="servesync-cart-line-total">
               <span>Subtotal</span>
-              <strong>&#8369;{{ lineTotal }}</strong>
+              <strong>{{ lineTotalFormatted }}</strong>
             </div>
             <form method="POST" action="/cart/items/{{ id }}/remove">
               <button class="servesync-cart-remove" type="submit">Remove</button>
@@ -51,14 +52,143 @@
       <div class="servesync-cart-summary">
         <div>
           <span>Total</span>
-          <strong>&#8369;{{ cartTotal }}</strong>
+          <strong>{{ cartTotalFormatted }}</strong>
         </div>
         <div class="servesync-detail-actions">
           <a class="servesync-button servesync-button-ghost" href="/menu">Continue browsing</a>
-          <form method="POST" action="/cart/order">
-            <button class="servesync-button servesync-button-primary" type="submit">Proceed to Buy</button>
-          </form>
+        {{#if canCheckout}}
+          <button class="servesync-button servesync-button-primary" type="button" data-checkout-open>Proceed to Buy</button>
+        {{else}}
+          <button class="servesync-button servesync-button-primary" type="button" disabled>Proceed to Buy</button>
+          <p class="servesync-notice" role="alert">Remove unavailable items before checkout.</p>
+        {{/if}}
         </div>
+      </div>
+      <div class="servesync-modal servesync-checkout-modal" id="checkout-modal" hidden aria-hidden="true">
+        <div class="servesync-modal-backdrop" data-checkout-close></div>
+        <section class="servesync-modal-card servesync-checkout-card" role="dialog" aria-modal="true" aria-labelledby="checkout-title">
+          <button class="servesync-modal-close" type="button" aria-label="Close checkout" data-checkout-close>&times;</button>
+          <div class="servesync-checkout-heading">
+            <span class="servesync-kicker">SECURE CHECKOUT</span>
+            <h2 id="checkout-title">Checkout and order summary</h2>
+            <p>Review your order and choose how you would like to pay.</p>
+          </div>
+          <div class="servesync-checkout-scroll">
+            <section class="servesync-checkout-section">
+              <h3>Order summary</h3>
+              <div class="servesync-checkout-items" role="table" aria-label="Items in your order">
+                <div class="servesync-checkout-item servesync-checkout-items-header" role="row">
+                  <span role="columnheader">Product</span><span role="columnheader">Qty</span><span role="columnheader">Unit price</span><span role="columnheader">Subtotal</span>
+                </div>
+                {{#each cart}}
+                <div class="servesync-checkout-item" role="row">
+                  <span role="cell">{{product_name}}</span>
+                  <span role="cell">{{quantity}}</span>
+                  <span role="cell">{{priceFormatted}}</span>
+                  <strong role="cell">{{lineTotalFormatted}}</strong>
+                </div>
+                {{/each}}
+              </div>
+              <div class="servesync-checkout-totals">
+                <div><span>Subtotal</span><strong>{{cartTotalFormatted}}</strong></div>
+                <div><span>Delivery fee</span><strong>₱0.00</strong></div>
+                <div class="servesync-checkout-grand-total"><span>Total amount to pay</span><strong>{{cartTotalFormatted}}</strong></div>
+              </div>
+            </section>
+            <section class="servesync-checkout-section">
+              <h3>Customer information</h3>
+              <p><strong>Account name:</strong> {{currentUser.full_name}}</p>
+              <p><strong>Registered email:</strong> {{currentUser.email}}
+                {{#if emailVerified}}
+                  <span class="servesync-email-verified">Verified</span>
+                {{else}}
+                  <span class="servesync-email-unverified">Not verified</span>
+                {{/if}}
+              </p>
+              {{#unless emailVerified}}
+                <p id="checkout-verification-required" class="servesync-notice" role="alert">Verify your email address to place an order. We will send the verification link to your registered email.</p>
+                <form method="POST" action="/email/verification-notification" class="servesync-verification-resend">
+                  <input type="hidden" name="returnTo" value="/cart?checkout=1">
+                  <button class="servesync-button servesync-button-ghost" type="submit">Resend Verification Email</button>
+                </form>
+              {{/unless}}
+            </section>
+            <form method="POST" action="/checkout/place" enctype="multipart/form-data" class="servesync-checkout-form" data-checkout-form>
+            <section class="servesync-checkout-section">
+              <h3>Pickup or delivery</h3>
+              <div class="servesync-checkout-grid">
+                <label>Order type
+                  <select name="order_type" id="orderType" required>
+                    <option value="pickup">Pickup</option>
+                    <option value="delivery">Delivery</option>
+                  </select>
+                </label>
+                <label>Contact number
+                  <input name="contact_number" type="tel" value="{{currentUser.phone}}" autocomplete="tel" minlength="7" maxlength="30" pattern="[0-9+() .-]{7,30}" required>
+                </label>
+                <label id="deliveryAddressField" class="servesync-checkout-wide" hidden>Delivery address
+                  <textarea name="delivery_address" maxlength="500" minlength="8"></textarea>
+                </label>
+              </div>
+            </section>
+            <section class="servesync-checkout-section">
+              <fieldset class="servesync-payment-method">
+                <legend>Payment method</legend>
+                <div class="servesync-payment-options">
+                  <button type="button" class="servesync-payment-option" data-payment-choice="cash_on_delivery" aria-pressed="true">Cash on Delivery</button>
+                  <button type="button" class="servesync-payment-option" data-payment-choice="gcash" aria-pressed="false" {{#unless paymentConfigured}}disabled{{/unless}}>GCash</button>
+                </div>
+                <input type="hidden" name="payment_method" data-payment-method value="cash_on_delivery">
+              </fieldset>
+              <p class="servesync-notice" data-gcash-unavailable {{#if paymentConfigured}}hidden{{/if}}>GCash is unavailable until an administrator configures the restaurant's account and QR code. You can still place a Cash on Delivery order.</p>
+            </section>
+            <section class="servesync-checkout-section servesync-gcash-section" data-gcash-payment hidden>
+              <h3>GCash payment</h3>
+              <p><strong>Account name:</strong> {{gcashName}}</p>
+              {{#if gcashNumber}}
+                <p class="servesync-gcash-number"><strong>GCash number:</strong> <span data-gcash-number>{{gcashNumber}}</span>
+                  <button type="button" class="servesync-button servesync-button-ghost servesync-copy-number" data-copy-gcash>Copy number</button>
+                </p>
+              {{else if gcashQr}}
+                <p>No GCash mobile number is listed. Please scan the QR code below to pay.</p>
+              {{else}}
+                <p class="servesync-notice">GCash number has not been configured by the administrator.</p>
+              {{/if}}
+              {{#if gcashQr}}
+                <a class="servesync-gcash-qr-link" href="{{gcashQr}}" download="ServeSync-GCash-QR">
+                  <img class="servesync-gcash-qr" src="{{gcashQr}}" alt="Restaurant GCash QR code" loading="lazy">
+                  <span>Download QR code</span>
+                </a>
+              {{else}}
+                <p class="servesync-notice">GCash QR code has not been configured by the administrator.</p>
+              {{/if}}
+              <p>Scan the QR code or transfer the exact order total of <strong>{{cartTotalFormatted}}</strong> to the restaurant account before entering your reference. Your payment remains pending until an administrator verifies it.</p>
+              <div class="servesync-checkout-grid">
+                <label class="servesync-checkout-wide">GCash transaction reference number
+                  <input name="reference_code" minlength="6" maxlength="100" pattern="[A-Za-z0-9-]+" autocomplete="off" placeholder="Enter your GCash reference number">
+                </label>
+                <label class="servesync-checkout-wide">Payment receipt screenshot <span>(optional; JPG, PNG or WEBP, up to 5 MB)</span>
+                  <input type="file" name="receiptFile" accept="image/jpeg,image/png,image/webp">
+                </label>
+              </div>
+            </section>
+            <section class="servesync-checkout-section">
+              <label>Order notes <span>(optional)</span>
+                <textarea name="notes" maxlength="1000" rows="3" placeholder="Add any instructions for the restaurant"></textarea>
+              </label>
+            </section>
+            <section class="servesync-checkout-section servesync-checkout-terms">
+              <h3>Terms and Conditions</h3>
+              <p>Orders are subject to restaurant confirmation. GCash payments require a valid transaction reference and administrator verification. Cash on Delivery payment is due when the order is delivered or collected. Customers must provide accurate contact and delivery information. Cancellation and refund requests are subject to restaurant review and applicable consumer protection laws.</p>
+              <label><input type="checkbox" name="acceptTerms" value="1" required> I have read and agree to the terms and conditions.</label>
+            </section>
+            <div class="servesync-checkout-actions">
+              <button class="servesync-button servesync-button-ghost" type="button" data-checkout-close>Back / Cancel</button>
+              <button class="servesync-button servesync-button-primary" type="submit" data-checkout-submit {{#unless emailVerified}}disabled aria-describedby="checkout-verification-required"{{/unless}}>Submit order — {{cartTotalFormatted}}</button>
+            </div>
+          </form>
+          </div>
+        </section>
       </div>
     {{else}}
       <div class="servesync-notice">
@@ -68,4 +198,84 @@
     {{/if}}
     </main>
   </div>
+  <script>
+    (() => {
+      const modal = document.getElementById("checkout-modal");
+      if (!modal) return;
+      const opener = document.querySelector("[data-checkout-open]");
+      const form = document.querySelector("[data-checkout-form]");
+      const submit = document.querySelector("[data-checkout-submit]");
+      const type = document.getElementById("orderType");
+      const addressField = document.getElementById("deliveryAddressField");
+      const paymentMethod = form.querySelector("[data-payment-method]");
+      const paymentChoices = form.querySelectorAll("[data-payment-choice]");
+      const gcashPayment = form.querySelector("[data-gcash-payment]");
+      let submitting = false;
+      const close = () => {
+        if (submitting) return;
+        modal.hidden = true;
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("servesync-modal-open");
+        opener?.focus();
+      };
+      const syncAddress = () => {
+        const address = addressField.querySelector("textarea");
+        const required = type.value === "delivery";
+        addressField.hidden = !required;
+        address.required = required;
+      };
+      opener?.addEventListener("click", () => {
+        modal.hidden = false;
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("servesync-modal-open");
+        modal.querySelector(".servesync-modal-close").focus();
+      });
+      modal.querySelectorAll("[data-checkout-close]").forEach(button => button.addEventListener("click", close));
+      document.addEventListener("keydown", event => {
+        if (!modal.hidden && event.key === "Escape") {
+          event.preventDefault();
+          close();
+        }
+      });
+      type.addEventListener("change", syncAddress);
+      syncAddress();
+      const syncPaymentMethod = value => {
+        const isGcash = value === "gcash";
+        paymentMethod.value = value;
+        paymentChoices.forEach(choice => {
+          choice.setAttribute("aria-pressed", String(choice.dataset.paymentChoice === value));
+        });
+        gcashPayment.hidden = !isGcash;
+        gcashPayment.querySelectorAll("input").forEach(input => {
+          input.disabled = !isGcash;
+          input.required = isGcash && input.name === "reference_code";
+        });
+      };
+      paymentChoices.forEach(choice => choice.addEventListener("click", () => syncPaymentMethod(choice.dataset.paymentChoice)));
+      syncPaymentMethod(paymentMethod.value);
+      form.addEventListener("submit", event => {
+        if (submitting) {
+          event.preventDefault();
+          return;
+        }
+        submitting = true;
+        submit.disabled = true;
+        submit.textContent = "Submitting order…";
+        modal.querySelectorAll("[data-checkout-close]").forEach(button => { button.disabled = true; });
+      });
+      document.querySelector("[data-copy-gcash]")?.addEventListener("click", async event => {
+        const number = document.querySelector("[data-gcash-number]").textContent.trim();
+        const button = event.currentTarget;
+        try {
+          await navigator.clipboard.writeText(number);
+          button.textContent = "Copied";
+        } catch {
+          window.prompt("Copy the GCash number:", number);
+        }
+      });
+      {{#if checkoutOpen}}
+      if (opener) opener.click();
+      {{/if}}
+    })();
+  </script>
   {{> footer }}

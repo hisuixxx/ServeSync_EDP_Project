@@ -31,6 +31,21 @@
         <a class="storefront-preview-open" href="/" target="_blank" rel="noopener">Open customer landing page ↗</a>
       </div>
 
+      {{#if canConfigurePayments}}
+      <form class="storefront-menu-settings servesync-gcash-settings" method="post" action="/storefront/payment-settings" enctype="multipart/form-data">
+        <div class="storefront-settings-heading"><div><span class="servesync-kicker">PAYMENT DETAILS</span><h3>Restaurant GCash account</h3><p>Only publish the restaurant’s official GCash account details and QR code. These details appear in customer checkout.</p></div></div>
+        <div class="servesync-checkout-grid">
+          <label>GCash account name<input name="gcashAccountName" maxlength="150" value="{{storefrontSettings.gcash_account_name}}" required></label>
+          <label>GCash number (optional when using QR)<input name="gcashNumber" maxlength="30" value="{{storefrontSettings.gcash_number}}" inputmode="tel"></label>
+          <label class="servesync-checkout-wide">Upload official GCash QR code (JPG, PNG or WEBP; up to 5 MB)
+            <input type="file" name="gcashQrFile" accept="image/jpeg,image/png,image/webp" {{#unless paymentQrConfigured}}required{{/unless}}>
+          </label>
+        </div>
+        {{#if storefrontSettings.gcash_qr_image}}<img class="servesync-gcash-qr servesync-admin-gcash-qr" src="/payments/gcash-qr" alt="Configured restaurant GCash QR code">{{/if}}
+        <div class="storefront-settings-footer"><button class="servesync-button servesync-button-primary" type="submit">Save GCash Details</button></div>
+      </form>
+      {{/if}}
+
       <form class="storefront-menu-settings" method="post" action="/storefront/menu-settings">
         <div class="storefront-settings-heading"><div><span class="servesync-kicker">MENU VISIBILITY</span><h3>Choose what customers see</h3><p>Featured products appear first in the menu and in the landing page favorites. Hidden products are removed from the customer menu.</p></div></div>
         <fieldset class="storefront-category-settings"><legend>Featured categories</legend><p>Choose categories and set their order in the customer menu filter.</p><div class="storefront-category-grid">

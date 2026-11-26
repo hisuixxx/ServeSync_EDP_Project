@@ -24,6 +24,7 @@
     */import { Op } from "sequelize";
 import { Product, Category } from "../models/associations.js";
 import { getStorefrontSettings } from "../models/StorefrontSetting.js";
+import { getConfiguredGcashQr } from "../utils/gcash.js";
 
 export const productcontroller = {
   // Display all available menu products
@@ -32,6 +33,7 @@ export const productcontroller = {
       const search = String(req.query.search || "").trim();
       const categoryId = req.query.category || "";
       const settings = await getStorefrontSettings();
+      const paymentQrConfigured = Boolean(await getConfiguredGcashQr(settings));
       const hiddenIds = Array.isArray(settings.hidden_product_ids) ? settings.hidden_product_ids.map(Number).filter(Number.isSafeInteger) : [];
       const featuredIds = Array.isArray(settings.featured_product_ids) ? settings.featured_product_ids.map(Number).filter(Number.isSafeInteger) : [];
       const featuredCategories = Array.isArray(settings.featured_category_ids) ? settings.featured_category_ids.map(Number).filter(Number.isSafeInteger) : [];
@@ -94,6 +96,8 @@ export const productcontroller = {
         managerProducts,
         storefrontSettings: settings,
         canCustomizeStore: Boolean(req.user && ["admin", "staff"].includes(req.user.role)),
+        canConfigurePayments: Boolean(req.user && req.user.role === "admin"),
+        paymentQrConfigured,
         search,
         selectedCategory: categoryId
       });

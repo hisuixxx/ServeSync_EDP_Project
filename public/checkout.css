@@ -1,0 +1,338 @@
+.servesync-checkout-modal {
+  z-index: 50;
+  padding: clamp(8px, 3vw, 28px);
+}
+
+.servesync-checkout-modal .servesync-modal-backdrop {
+  background: rgba(3, 13, 23, .66);
+}
+
+.servesync-checkout-card {
+  display: flex;
+  flex-direction: column;
+  width: min(940px, 100%);
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+  padding: 0;
+}
+
+.servesync-checkout-heading {
+  flex: 0 0 auto;
+  padding: clamp(22px, 4vw, 38px) clamp(22px, 4vw, 38px) 18px;
+  padding-right: 70px;
+  margin: 0;
+  background: var(--panel);
+  border-bottom: 1px solid var(--ss-border);
+}
+
+.servesync-checkout-heading h2 {
+  margin: 8px 0;
+}
+
+.servesync-checkout-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 clamp(22px, 4vw, 38px) 30px;
+}
+
+.servesync-checkout-section {
+  padding: 20px 0;
+  border-top: 1px solid var(--ss-border);
+}
+
+.servesync-checkout-section h3 {
+  margin: 0 0 14px;
+}
+
+.servesync-payment-method {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.servesync-payment-method legend {
+  margin-bottom: 12px;
+  font-weight: 800;
+}
+
+.servesync-payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.servesync-payment-option {
+  min-height: 48px;
+  padding: 12px 16px;
+  border: 1px solid var(--ss-border);
+  border-radius: 10px;
+  color: var(--ss-text);
+  background: #081223;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.servesync-payment-option[aria-pressed="true"] {
+  border-color: var(--ss-green);
+  color: var(--ss-green);
+  background: #102a29;
+  box-shadow: inset 0 0 0 1px var(--ss-green);
+}
+
+.servesync-payment-option:focus-visible {
+  outline: 2px solid var(--ss-green);
+  outline-offset: 2px;
+}
+
+.servesync-payment-option:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.servesync-checkout-items,
+.servesync-checkout-totals {
+  display: grid;
+  gap: 0;
+}
+
+.servesync-checkout-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(32px, .42fr) minmax(78px, .86fr) minmax(82px, .9fr);
+  align-items: start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(165, 226, 211, .12);
+  font-variant-numeric: tabular-nums;
+}
+
+.servesync-checkout-item > span:first-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.servesync-checkout-item > :not(:first-child) {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.servesync-checkout-items-header {
+  color: var(--ss-muted);
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.servesync-checkout-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 5px 0;
+}
+
+.servesync-checkout-totals {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--ss-border);
+}
+
+.servesync-checkout-totals > div:first-child {
+  padding-top: 0;
+}
+
+.servesync-checkout-grand-total {
+  color: var(--ss-green);
+  font-size: 1.15rem;
+}
+
+.servesync-checkout-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+}
+
+.servesync-checkout-grid label,
+.servesync-checkout-section > label {
+  display: grid;
+  gap: 7px;
+  color: var(--ss-muted);
+}
+
+.servesync-checkout-grid input,
+.servesync-checkout-grid select,
+.servesync-checkout-grid textarea,
+.servesync-checkout-section > label textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid var(--ss-border);
+  border-radius: 9px;
+  padding: 11px 12px;
+  color: var(--ss-text);
+  background: #081223;
+}
+
+.servesync-checkout-grid textarea,
+.servesync-checkout-section > label textarea {
+  min-height: 92px;
+  resize: vertical;
+}
+
+.servesync-checkout-wide {
+  grid-column: 1 / -1;
+}
+
+.servesync-gcash-section > p {
+  color: var(--ss-muted);
+  line-height: 1.6;
+}
+
+.servesync-gcash-number {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.servesync-copy-number {
+  padding: 7px 10px;
+  font-size: .82rem;
+}
+
+.servesync-gcash-qr-link {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 12px;
+  color: var(--ss-green);
+  font-weight: 700;
+}
+
+.servesync-gcash-qr {
+  display: block;
+  width: min(260px, 70vw);
+  max-height: 380px;
+  object-fit: contain;
+  padding: 8px;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.servesync-admin-gcash-qr {
+  width: 170px;
+  max-height: 240px;
+}
+
+.servesync-email-verified,
+.servesync-email-unverified {
+  display: inline-block;
+  margin-left: 7px;
+  color: var(--ss-green);
+  font-weight: 800;
+}
+
+.servesync-email-unverified {
+  color: #ffcb74;
+}
+
+.servesync-checkout-terms {
+  padding: 18px;
+  border: 1px solid var(--ss-border);
+  border-radius: 13px;
+  background: #091426;
+}
+
+.servesync-checkout-terms p {
+  color: var(--ss-muted);
+  line-height: 1.6;
+}
+
+.servesync-checkout-terms label {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.servesync-checkout-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 18px;
+}
+
+.servesync-checkout-actions button:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.servesync-verification-resend {
+  margin-top: 12px;
+}
+
+.servesync-verification-resend button {
+  min-height: 42px;
+}
+
+.ss-payment-history {
+  margin-top: 10px;
+  max-width: 330px;
+}
+
+.ss-payment-history summary {
+  color: var(--ss-green);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.ss-payment-history p {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .servesync-checkout-modal {
+    place-items: center;
+    padding: 8px;
+  }
+
+  .servesync-checkout-card {
+    max-height: calc(100vh - 16px);
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+  }
+
+  .servesync-checkout-heading {
+    padding: 20px 64px 14px 18px;
+  }
+
+  .servesync-checkout-scroll {
+    padding: 0 18px 22px;
+  }
+
+  .servesync-checkout-item {
+    grid-template-columns: minmax(0, 1.35fr) minmax(26px, .4fr) minmax(64px, .85fr) minmax(70px, .9fr);
+    gap: 6px;
+    font-size: .78rem;
+  }
+
+  .servesync-checkout-items-header {
+    font-size: .66rem;
+  }
+
+  .servesync-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .servesync-checkout-wide {
+    grid-column: auto;
+  }
+
+  .servesync-checkout-actions {
+    flex-direction: column-reverse;
+  }
+
+  .servesync-checkout-actions button {
+    width: 100%;
+  }
+}

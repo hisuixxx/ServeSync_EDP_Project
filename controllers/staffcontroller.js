@@ -23,8 +23,10 @@
     SOFTWARE.
     */
    
-import { Product, Category, Order, OrderItem, Payment, User, CateringRequest, DeliveryRequest, Notification } from "../models/associations.js";
+import { Product, Category, Order, OrderItem, Payment, User, CateringRequest, DeliveryRequest, Notification, Auditlog } from "../models/associations.js";
+import { sequelize } from "../models/db.js";
 import { writeAudit } from "../utils/audit.js";
+import { sendTransactionalEmail } from "../utils/mailer.js";
 
 export const staffDashboard = async (req, res) => {
   try {
@@ -61,6 +63,12 @@ export const staffOrders = async (req, res) => {
     const transitions = { approved: ["preparing"], preparing: ["ready"], ready: ["out_for_delivery"], out_for_delivery: [] };
     const rows = orders.map(order => {
       const plain = order.get({ plain: true });
+      if (plain.payment) {
+        plain.payment.methodLabel = plain.payment.method === "cash_on_delivery" ? "Cash on Delivery" : "GCash";
+        plain.payment.statusLabel = plain.payment.method === "cash_on_delivery" && plain.payment.status === "pending"
+          ? "Due on delivery"
+          : plain.payment.status === "verified" ? "Paid" : plain.payment.status === "rejected" ? "Rejected" : "Pending Verification";
+      }
       const allowedStatuses = plain.status === "ready" && plain.order_type !== "delivery" ? [] : transitions[plain.status] || [];
       return {
         ...plain,
@@ -75,10 +83,57 @@ export const staffOrders = async (req, res) => {
 export const staffUpdateOrderStatus = async (req, res) => {
   const allowed = ["preparing", "ready", "out_for_delivery"];
   if (!allowed.includes(req.body.status)) { req.flash("error_msg", "Invalid operational status."); return res.redirect("/staff/orders"); }
-  try { const order = await Order.findByPk(req.params.id); if (!order || !["approved", "preparing", "ready", "out_for_delivery"].includes(order.status)) { req.flash("error_msg", "Order is not available for staff processing."); return res.redirect("/staff/orders"); }
-    if (req.body.status === "out_for_delivery" && order.order_type !== "delivery") { req.flash("error_msg", "Only delivery orders can be marked out for delivery."); return res.redirect("/staff/orders"); }
+  let transaction;
+  let order;
+  let previous;
+  try {
+    transaction = await sequelize.transaction();
+    order = await Order.findByPk(req.params.id, {
+      include: [{ model: User, as: "customer" }, { model: Payment, as: "payment" }],
+      transaction,
+      lock: transaction.LOCK.UPDATE,
+    });
+    if (!order || !["approved", "preparing", "ready", "out_for_delivery"].includes(order.status)) throw new Error("Order is not available for staff processing.");
+    if (req.body.status === "out_for_delivery" && order.order_type !== "delivery") throw new Error("Only delivery orders can be marked out for delivery.");
     const allowedTransitions = { approved: ["preparing"], preparing: ["ready"], ready: ["out_for_delivery"] };
-    if (!allowedTransitions[order.status]?.includes(req.body.status)) { req.flash("error_msg", "This order cannot move to that status from its current state."); return res.redirect("/staff/orders"); }
-    await order.update({ status: req.body.status }); await Notification.create({ user_id: order.customer_id, title: "Order status updated", message: `Your order ${order.order_number} is now ${req.body.status.replaceAll("_", " ")}.`, link: `/my-orders/${order.id}` }); await writeAudit(req, "staff_update_order", "Order", order.id, { status: req.body.status }); req.flash("success_msg", "Order updated.");
-  } catch (error) { console.error(error); req.flash("error_msg", "Unable to update order."); } res.redirect("/staff/orders");
+    previous = order.status;
+    if (!allowedTransitions[previous]?.includes(req.body.status)) throw new Error("This order cannot move to that status from its current state.");
+    await order.update({ status: req.body.status }, { transaction });
+    await Notification.create({
+      user_id: order.customer_id,
+      title: "Order status updated",
+      message: `Your order ${order.order_number} is now ${req.body.status.replaceAll("_", " ")}.`,
+      link: `/my-orders/${order.id}`,
+    }, { transaction });
+    await Auditlog.create({
+      user_id: req.user.id,
+      action: "staff_update_order",
+      entity_type: "Order",
+      entity_id: order.id,
+      details: { previous, nextStatus: req.body.status },
+      ip_address: String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "").split(",")[0].slice(0, 64) || null,
+    }, { transaction });
+    await transaction.commit();
+
+    if (order.customer?.email) {
+      const label = req.body.status === "ready"
+        ? (order.order_type === "delivery" ? "Ready for dispatch" : "Ready for Pickup")
+        : req.body.status === "out_for_delivery" ? "Out for Delivery" : "Preparing";
+      const paymentStatus = order.payment?.method === "cash_on_delivery" && order.payment?.status === "pending"
+        ? "Due on delivery"
+        : order.payment?.status === "verified" ? "Paid" : order.payment?.status === "rejected" ? "Rejected" : "Pending Verification";
+      await sendTransactionalEmail({
+        to: order.customer.email,
+        subject: `ServeSync order update: ${order.order_number}`,
+        text: `Hello ${order.customer.full_name},\n\nYour order ${order.order_number} is now ${label}.\nCurrent order status: ${label}.\nPayment status: ${paymentStatus}.`,
+        event: `order_status:${order.id}:${req.body.status}`,
+      });
+    }
+    req.flash("success_msg", "Order updated.");
+  } catch (error) {
+    if (transaction && !transaction.finished) await transaction.rollback();
+    console.error("Staff order status:", error.message);
+    req.flash("error_msg", error.message || "Unable to update order.");
+  }
+  res.redirect("/staff/orders");
 };

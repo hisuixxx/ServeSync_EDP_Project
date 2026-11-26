@@ -1,9 +1,11 @@
 import { Cart, CartItem, Product, Category } from "../models/associations.js";
 import { sequelize } from "../models/db.js";
 import { getStorefrontSettings } from "../models/StorefrontSetting.js";
+import { getConfiguredGcashQr } from "../utils/gcash.js";
 
 const parseQuantity = value => { const n = Number(value); return Number.isSafeInteger(n) && n > 0 && n <= 99 ? n : null; };
 const message = (req, text, type = "error") => { req.flash(type === "success" ? "success_msg" : "error_msg", text); };
+const formatPeso = value => new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(value);
 
 const cartController = {
   cartPage: async (req, res) => {
@@ -11,9 +13,40 @@ const cartController = {
       const cart = await Cart.findOne({ where: { user_id: req.user.id, status: "active" }, include: [{ model: CartItem, as: "items", include: [{ model: Product, as: "product", include: [{ model: Category, as: "category" }] }] }] });
       const storefront = await getStorefrontSettings();
       const hiddenIds = new Set((Array.isArray(storefront.hidden_product_ids) ? storefront.hidden_product_ids : []).map(Number));
-      const items = (cart?.items || []).map(item => ({ id: item.id, product_id: item.product_id, product_name: item.product?.product_name || "Unavailable product", product_image: item.product?.image, category_name: item.product?.category?.category_name || "", isAvailable: Boolean(item.product && item.product.status === "active" && item.product.availability && !hiddenIds.has(Number(item.product_id))), quantity: item.quantity, canDecrease: item.quantity > 1, price: Number(item.product?.price ?? item.price).toFixed(2), lineTotal: (Number(item.product?.price ?? item.price) * item.quantity).toFixed(2) }));
-      const total = items.reduce((sum, item) => sum + Number(item.lineTotal), 0);
-      res.render("customer/cart", { title: "ServeSync | Your Cart", cart: items, cartTotal: total.toFixed(2), canCheckout: items.length > 0 && items.every(item => item.isAvailable) });
+      const items = (cart?.items || []).map(item => {
+        const price = Number(item.product?.price ?? item.price);
+        const lineTotal = price * item.quantity;
+        return {
+          id: item.id,
+          product_id: item.product_id,
+          product_name: item.product?.product_name || "Unavailable product",
+          product_image: item.product?.image,
+          category_name: item.product?.category?.category_name || "",
+          isAvailable: Boolean(item.product && item.product.status === "active" && item.product.availability && !hiddenIds.has(Number(item.product_id))),
+          quantity: item.quantity,
+          canDecrease: item.quantity > 1,
+          price: price.toFixed(2),
+          priceFormatted: formatPeso(price),
+          lineTotal: lineTotal.toFixed(2),
+          lineTotalFormatted: formatPeso(lineTotal),
+        };
+      });
+      const totalCents = items.reduce((sum, item) => sum + Math.round(Number(item.lineTotal) * 100), 0);
+      const gcashQrFilename = await getConfiguredGcashQr(storefront);
+      const hasGcashQr = Boolean(gcashQrFilename);
+      res.render("customer/cart", {
+        title: "ServeSync | Your Cart",
+        cart: items,
+        cartTotal: (totalCents / 100).toFixed(2),
+        cartTotalFormatted: formatPeso(totalCents / 100),
+        canCheckout: items.length > 0 && items.every(item => item.isAvailable),
+        checkoutOpen: req.query.checkout === "1",
+        emailVerified: Boolean(req.user.email_verified_at),
+        gcashName: storefront.gcash_account_name || process.env.GCASH_ACCOUNT_NAME || "ServeSync Gcash",
+        gcashNumber: storefront.gcash_number || process.env.GCASH_NUMBER || "",
+        gcashQr: hasGcashQr ? "/payments/gcash-qr" : "",
+        paymentConfigured: hasGcashQr,
+      });
     } catch (error) { console.error(error); res.status(500).send("Unable to load your cart."); }
   },
   addToCart: async (req, res) => {

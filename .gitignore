@@ -1,0 +1,10 @@
+node_modules/
+.env
+.env.*
+!.env.example
+storage/payment-receipts/*
+storage/payment-assets/*
+!storage/payment-assets/servesync-gcash.png
+!storage/payment-receipts/.gitkeep
+public/uploads/restaurant-gcash-qr.png
+.env 

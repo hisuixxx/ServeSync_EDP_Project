@@ -5,6 +5,7 @@
     <a class="auth-home-link" href="/">← Back to Home</a>
   </header>
   <main class="servesync-shell servesync-auth-page">
+    {{> flash-messages}}
     <form class="servesync-auth-card" method="POST" action="/register">
       <div class="servesync-kicker">Join ServeSync</div>
       <h1>Create your account.</h1>
@@ -27,6 +28,12 @@
         <span class="auth-password-wrap"><input id="register-confirm-password" type="password" name="confirmPassword" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required /><button class="auth-password-toggle" type="button" data-password-toggle="register-confirm-password" aria-label="Show password" aria-pressed="false">Show</button></span>
       </label>
       <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Create Account</button>
+      <div class="servesync-auth-divider" role="separator"><span>or</span></div>
+      <a class="servesync-google-button" href="/auth/google?source=register">
+        <span class="servesync-google-mark" aria-hidden="true">G</span>
+        <span>Continue with Google</span>
+      </a>
+      {{#unless googleConfigured}}<p class="servesync-google-setup">Google sign-in is unavailable until the administrator configures OAuth credentials.</p>{{/unless}}
     </form>
   </main>
   <script src="/js/auth.js" defer></script>

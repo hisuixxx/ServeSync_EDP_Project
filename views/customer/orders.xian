@@ -30,7 +30,7 @@
               <td>{{order_number}}</td>
               <td>{{createdAt}}</td>
               <td>₱{{total_amount}}</td>
-              <td>{{payment.status}}</td>
+              <td>{{payment.methodLabel}} · {{payment.statusLabel}}</td>
               <td>{{status}}</td>
               <td><a href="/my-orders/{{id}}">Track</a></td>
             </tr>

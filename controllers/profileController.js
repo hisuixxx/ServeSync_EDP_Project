@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel.js";
+import { issueVerificationEmail } from "../utils/emailverification.js";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -15,25 +16,68 @@ export const updateProfile = async (req, res) => {
   const email = String(req.body.email || "").trim().toLowerCase();
   const phone = String(req.body.phone || "").trim() || null;
 
-  if (!fullName || !emailPattern.test(email)) {
+  if (!fullName || (email !== req.user.email && !emailPattern.test(email))) {
     return res.status(400).render("customer/profile", {
       title: "ServeSync | Your profile",
-      user: { ...req.user.get({ plain: true }), full_name: fullName, email, phone },
+      user: { ...req.user.get({ plain: true }), full_name: fullName, phone },
       profileError: "Enter a full name and valid email address.",
     });
   }
-
-  const duplicate = await User.findOne({ where: { email } });
-  if (duplicate && duplicate.id !== req.user.id) {
-    return res.status(409).render("customer/profile", {
+  const emailChanged = email !== req.user.email;
+  try {
+    if (emailChanged) {
+      const duplicate = await User.findOne({ where: { email } });
+      if (duplicate && duplicate.id !== req.user.id) {
+        return res.status(409).render("customer/profile", {
+          title: "ServeSync | Your profile",
+          user: { ...req.user.get({ plain: true }), full_name: fullName, phone },
+          profileError: "That email address is already in use.",
+        });
+      }
+    }
+    await req.user.update({
+      full_name: fullName,
+      email,
+      phone,
+      ...(emailChanged ? {
+        email_verified_at: null,
+        email_verification_token_hash: null,
+        email_verification_expires_at: null,
+        email_verification_sent_at: null,
+      } : {}),
+    });
+    let profileSuccess = "Profile updated successfully.";
+    if (emailChanged) {
+      try {
+        const verificationResult = await issueVerificationEmail(req.user);
+        profileSuccess = verificationResult.sent
+          ? "Profile updated. Check your new email address for a verification link before checkout."
+          : "Profile updated, but the verification email was not sent. Check the application URL and mail settings, then request another email.";
+      } catch (verificationError) {
+        console.error("Send changed-email verification:", verificationError.message);
+        profileSuccess = "Profile updated, but the verification email could not be sent. Please request another email after checking the mail settings.";
+      }
+    }
+    res.render("customer/profile", {
       title: "ServeSync | Your profile",
-      user: { ...req.user.get({ plain: true }), full_name: fullName, email, phone },
-      profileError: "That email address is already in use.",
+      user: req.user,
+      profileSuccess,
+    });
+  } catch (error) {
+    console.error("Update customer profile:", error.message);
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(409).render("customer/profile", {
+        title: "ServeSync | Your profile",
+        user: { ...req.user.get({ plain: true }), full_name: fullName, phone },
+        profileError: "That email address is already in use.",
+      });
+    }
+    res.status(500).render("customer/profile", {
+      title: "ServeSync | Your profile",
+      user: req.user,
+      profileError: "Unable to update your profile. Please try again.",
     });
   }
-
-  await req.user.update({ full_name: fullName, email, phone });
-  res.render("customer/profile", { title: "ServeSync | Your profile", user: req.user, profileSuccess: "Profile updated successfully." });
 };
 
 export const changePassword = async (req, res) => {

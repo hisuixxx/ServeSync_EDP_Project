@@ -30,8 +30,9 @@ import { cartController } from "../controllers/cartController.js";
 import { profilePage, updateProfile, changePassword } from "../controllers/profileController.js";
 import { serviceRequestController } from "../controllers/servicerequestcontroller.js";
 import { requireAuth, requireCustomer, requireRole } from "../middleware/auth.js";
-import { uploadProductImage, uploadPaymentReceipt } from "../middleware/upload.js";
-import { loginPage, registerPage, forgotPasswordPage, loginUser, registerUser, logoutUser } from "../controllers/authController.js";
+import { uploadProductImage, uploadPaymentReceipt, uploadGcashQr } from "../middleware/upload.js";
+import { loginPage, registerPage, forgotPasswordPage, loginUser, registerUser, googleSignIn, googleCallback, logoutUser } from "../controllers/authController.js";
+import { resendVerificationEmail, verifyEmail } from "../controllers/emailverificationcontroller.js";
 import { checkoutPage, placeCheckoutOrder } from "../controllers/checkoutcontroller.js";
 import { adminDashboard, adminProducts, adminCreateProduct, adminUpdateProduct, adminArchiveProduct, adminArchiveList, adminRestoreProduct, adminCategories, adminCreateCategory, adminUpdateCategory } from "../controllers/admincontroller.js";
 import { adminUsers, adminCreateStaff, adminUpdateUser, adminResetUserPassword, adminDeleteUser } from "../controllers/usercontroller.js";
@@ -48,10 +49,15 @@ router.get("/menu", productcontroller.menu);
 router.get("/menu/:id", productcontroller.detail);
 router.post("/storefront/landing-settings", requireRole(["admin", "staff"]), storefrontController.updateLanding);
 router.post("/storefront/menu-settings", requireRole(["admin", "staff"]), storefrontController.updateMenu);
+router.post("/storefront/payment-settings", requireRole("admin"), uploadGcashQr, storefrontController.updatePaymentSettings);
+router.get("/payments/gcash-qr", requireAuth, storefrontController.gcashQrImage);
 router.get("/login", loginPage);
 router.post("/login", loginUser);
 router.get("/register", registerPage);
 router.post("/register", registerUser);
+router.get("/auth/google", googleSignIn);
+router.get("/auth/google/callback", googleCallback);
+router.get("/email/verify/:token", verifyEmail);
 router.get("/forgot-password", forgotPasswordPage);
 router.get("/logout", logoutUser);
 router.post("/logout", logoutUser);
@@ -65,6 +71,7 @@ router.get("/dashboard", requireAuth, (req, res) => {
 router.get("/profile", requireAuth, profilePage);
 router.post("/profile", requireAuth, updateProfile);
 router.post("/profile/password", requireAuth, changePassword);
+router.post("/email/verification-notification", requireAuth, resendVerificationEmail);
 
 // Cart and checkout. Customers only.
 router.get("/cart", requireCustomer, cartController.cartPage);

@@ -25,11 +25,11 @@
 import { Order, OrderItem, Payment, Notification } from "../models/associations.js";
 
 export const customerOrders = async (req, res) => {
-  try { const orders = await Order.findAll({ where: { customer_id: req.user.id }, include: [{ model: Payment, as: "payment" }], order: [["createdAt", "DESC"]] }); res.render("customer/orders", { title: "ServeSync | My Orders", orders: orders.map(o => o.get({ plain: true })) }); }
+  try { const orders = await Order.findAll({ where: { customer_id: req.user.id }, include: [{ model: Payment, as: "payment" }], order: [["createdAt", "DESC"]] }); res.render("customer/orders", { title: "ServeSync | My Orders", orders: orders.map(o => { const plain = o.get({ plain: true }); if (plain.payment) { plain.payment.methodLabel = plain.payment.method === "cash_on_delivery" ? "Cash on Delivery" : "GCash"; plain.payment.statusLabel = plain.payment.method === "cash_on_delivery" && plain.payment.status === "pending" ? "Due on delivery" : ({ pending: "Pending Verification", verified: "Paid", rejected: "Rejected" })[plain.payment.status] || plain.payment.status; } return plain; }) }); }
   catch (error) { console.error("Customer orders:", error); res.status(500).send("Unable to load your orders."); }
 };
 export const customerOrderDetail = async (req, res) => {
-  try { const order = await Order.findOne({ where: { id: req.params.id, customer_id: req.user.id }, include: [{ model: OrderItem, as: "items" }, { model: Payment, as: "payment" }] }); if (!order) return res.status(404).send("Order not found."); res.render("customer/order-detail", { title: `ServeSync | ${order.order_number}`, order: order.get({ plain: true }) }); }
+  try { const order = await Order.findOne({ where: { id: req.params.id, customer_id: req.user.id }, include: [{ model: OrderItem, as: "items" }, { model: Payment, as: "payment" }] }); if (!order) return res.status(404).send("Order not found."); const plain = order.get({ plain: true }); if (plain.payment) { plain.payment.methodLabel = plain.payment.method === "cash_on_delivery" ? "Cash on Delivery" : "GCash"; plain.payment.statusLabel = plain.payment.method === "cash_on_delivery" && plain.payment.status === "pending" ? "Due on delivery" : ({ pending: "Pending Verification", verified: "Paid", rejected: "Rejected" })[plain.payment.status] || plain.payment.status; } res.render("customer/order-detail", { title: `ServeSync | ${order.order_number}`, order: plain }); }
   catch (error) { console.error(error); res.status(500).send("Unable to load order."); }
 };
 export const customerNotifications = async (req, res) => {

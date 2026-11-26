@@ -19,11 +19,11 @@
                 <td>{{#if isCatering}}{{event_date}} {{event_time}}{{else}}{{requested_date}} {{preferred_time}}{{/if}}</td>
                 <td><span class="servesync-request-status servesync-request-status-approved">{{status}}</span></td>
                 <td>
-                  {{#eq status "rejected"}}
+                  {{#if (eq status "rejected")}}
                     <span class="ss-request-rejection-reason" aria-label="Reason for rejection">{{#if rejection_reason}}{{rejection_reason}}{{else}}No reason provided{{/if}}</span>
                   {{else}}
                     <button class="ss-small-button ss-secondary" type="button" data-modal-open="staff-request-{{requestType}}-{{id}}">View details</button>
-                  {{/eq}}
+                  {{/if}}
                 </td>
               </tr>
               {{else}}<tr><td colspan="5">There are no approved {{../requestType}} requests at this time.</td></tr>{{/each}}

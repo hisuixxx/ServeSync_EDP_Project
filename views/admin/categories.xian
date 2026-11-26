@@ -40,8 +40,8 @@
             </td>
             <td>
               <select name="status" form="form-cat-{{id}}">
-                <option value="active" {{#eq status "active"}}selected{{/eq}}>Active</option>
-                <option value="inactive" {{#eq status "inactive"}}selected{{/eq}}>Inactive</option>
+                <option value="active" {{#if (eq status "active")}}selected{{/if}}>Active</option>
+                <option value="inactive" {{#if (eq status "inactive")}}selected{{/if}}>Inactive</option>
               </select>
               <button type="submit" class="ss-small-button" form="form-cat-{{id}}">Save</button>
             </td>

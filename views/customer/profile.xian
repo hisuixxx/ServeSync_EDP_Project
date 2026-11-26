@@ -9,31 +9,45 @@
     <p class="ss-page-intro">Keep your personal and contact information up to date.</p>
 
     <div class="servesync-profile-grid">
-      <form class="servesync-auth-card ss-panel" method="POST" action="/profile">
-        <h2>Personal information</h2>
+      <section class="servesync-auth-card ss-panel">
+        <form method="POST" action="/profile">
+          <h2>Personal information</h2>
 
-        {{#if profileError}}
-          <p class="servesync-form-error servesync-notice" role="alert">{{ profileError }}</p>
-        {{/if}}
+          {{#if profileError}}
+            <p class="servesync-form-error servesync-notice" role="alert">{{ profileError }}</p>
+          {{/if}}
 
-        {{#if profileSuccess}}
-          <p class="servesync-form-success servesync-notice" role="status">{{ profileSuccess }}</p>
-        {{/if}}
+          {{#if profileSuccess}}
+            <p class="servesync-form-success servesync-notice" role="status">{{ profileSuccess }}</p>
+          {{/if}}
 
-        <label class="servesync-form-field">Full name
-          <input type="text" name="fullName" value="{{ user.full_name }}" autocomplete="name" required />
-        </label>
+          <label class="servesync-form-field">Full name
+            <input type="text" name="fullName" value="{{ user.full_name }}" autocomplete="name" required />
+          </label>
 
-        <label class="servesync-form-field">Email
-          <input type="email" name="email" value="{{ user.email }}" autocomplete="email" required />
-        </label>
+          <label class="servesync-form-field">Email
+            <input type="email" name="email" value="{{ user.email }}" autocomplete="email" required />
+          </label>
+          <p class="servesync-profile-verification">
+            Email status:
+            {{#if user.email_verified_at}}
+              <span class="servesync-email-verified">Verified</span>
+            {{else}}
+              <span class="servesync-email-unverified">Not verified</span>
+            {{/if}}
+          </p>
+          <label class="servesync-form-field">Contact number
+            <input type="tel" name="phone" value="{{ user.phone }}" autocomplete="tel" placeholder="Optional phone number" />
+          </label>
 
-        <label class="servesync-form-field">Contact number
-          <input type="tel" name="phone" value="{{ user.phone }}" autocomplete="tel" placeholder="Optional phone number" />
-        </label>
-
-        <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Save profile</button>
-      </form>
+          <button class="servesync-button servesync-button-primary servesync-button-wide" type="submit">Save profile</button>
+        </form>
+        {{#unless user.email_verified_at}}
+          <form method="POST" action="/email/verification-notification" class="servesync-verification-resend">
+            <button class="servesync-button servesync-button-ghost servesync-button-wide" type="submit">Resend Verification Email</button>
+          </form>
+        {{/unless}}
+      </section>
 
       <form class="servesync-auth-card ss-panel" method="POST" action="/profile/password">
         <h2>Change password</h2>

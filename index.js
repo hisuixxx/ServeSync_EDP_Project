@@ -23,6 +23,7 @@
     SOFTWARE.
     */
     
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import session from "express-session";
@@ -39,6 +40,9 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const sessionSecret = process.env.SESSION_SECRET || (process.env.NODE_ENV === "production" ? "" : "development-only-change-me");
+if (!sessionSecret) throw new Error("SESSION_SECRET must be configured in production.");
+if (process.env.NODE_ENV === "production") app.set("trust proxy", process.env.TRUST_PROXY || 1);
 
 hbs.registerHelper("eq", (left, right) => left === right);
 
@@ -47,7 +51,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(process.cwd(), "public")));
 
 app.use(session({
-  secret: process.env.SESSION_SECRET || "development-only-change-me",
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -107,11 +111,35 @@ export default app;
 // Exported so the Electron main process can control startup itself.
 export const startServer = (port = PORT) => {
   return new Promise((resolve, reject) => {
-    const server = app.listen(port, () => {
-      console.log(`🔥 XianFire running at http://localhost:${port}`);
-      resolve(server);
-    });
-    server.on("error", reject);
+    const firstPort = Number(port);
+    if (!Number.isInteger(firstPort) || firstPort < 0 || firstPort > 65535) {
+      reject(new RangeError("PORT must be an integer between 0 and 65535."));
+      return;
+    }
+
+    const lastPort = firstPort === 0 ? 0 : Math.min(firstPort + 10, 65535);
+    const listen = candidatePort => {
+      const server = app.listen(candidatePort, () => {
+        const activePort = server.address().port;
+        if (activePort !== firstPort) {
+          console.warn(`Port ${firstPort} is already in use; ServeSync is using port ${activePort}.`);
+        }
+        console.log(`🔥 XianFire running at http://localhost:${activePort}`);
+        resolve(server);
+      });
+      server.once("error", error => {
+        if (error.code === "EADDRINUSE" && candidatePort < lastPort) {
+          listen(candidatePort + 1);
+          return;
+        }
+        if (error.code === "EADDRINUSE") {
+          error.message = `Port ${firstPort} and fallback ports through ${candidatePort} are in use. Set PORT to an available port.`;
+        }
+        reject(error);
+      });
+    };
+
+    listen(firstPort);
   });
 };
 

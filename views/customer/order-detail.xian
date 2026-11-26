@@ -16,8 +16,10 @@
     <section class="ss-panel">
       <h2>Order {{order.order_number}}</h2>
       <p>Order status: <strong>{{order.status}}</strong></p>
-      <p>Payment status: <strong>{{order.payment.status}}</strong></p>
-      <p>GCash reference: {{order.payment.reference_code}}</p>
+      <p>Payment status: <strong>{{order.payment.statusLabel}}</strong></p>
+      <p>Payment method: <strong>{{order.payment.methodLabel}}</strong></p>
+      {{#if order.payment.reference_code}}<p>GCash reference: {{order.payment.reference_code}}</p>{{/if}}
+      {{#if (eq order.payment.status "rejected")}}<p class="servesync-notice" role="alert">Payment rejected. Reason: {{order.payment.remarks}} Contact the restaurant for instructions before making another transfer.</p>{{/if}}
       <p>Total: ₱{{order.total_amount}}</p>
 
       <h2>Items</h2>

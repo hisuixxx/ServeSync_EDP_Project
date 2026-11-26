@@ -14,6 +14,7 @@
               <th>Order</th>
               <th>Customer</th>
               <th>Amount</th>
+              <th>Method</th>
               <th>Reference</th>
               <th>Receipt</th>
               <th>Status</th>
@@ -26,7 +27,8 @@
               <td>{{order.order_number}}</td>
               <td>{{order.customer.full_name}}</td>
               <td>₱{{amount}}</td>
-              <td>{{reference_code}}</td>
+              <td>{{methodLabel}}</td>
+              <td>{{#if reference_code}}{{reference_code}}{{else}}—{{/if}}</td>
               <td>
                 {{#if receipt_image}}
                   <a href="/admin/payments/{{id}}/receipt" target="_blank" rel="noopener">View receipt</a>
@@ -34,18 +36,31 @@
                   Not uploaded
                 {{/if}}
               </td>
-              <td>{{status}}</td>
+              <td><strong>{{statusLabel}}</strong></td>
               <td>
+                {{#if canDecide}}
                 <form method="post" action="/admin/payments/{{id}}/verify" class="ss-payment-form">
-                  <input name="remarks" placeholder="Remarks">
-                  <button name="status" value="verified" class="ss-small-button">Verify</button>
-                  <button name="status" value="rejected" class="ss-small-button ss-danger">Reject</button>
+                  <input name="remarks" maxlength="1000" placeholder="Optional notes / required rejection reason" data-payment-reason>
+                  <button name="status" value="verified" class="ss-small-button">{{#if (eq method "cash_on_delivery")}}Mark cash collected{{else}}Verify{{/if}}</button>
+                  {{#if canReject}}<button name="status" value="rejected" class="ss-small-button ss-danger" data-payment-reject>Reject</button>{{/if}}
                 </form>
+                {{else}}
+                  Reviewed {{verified_at}}
+                  {{#if remarks}}<p>{{remarks}}</p>{{/if}}
+                {{/if}}
+                {{#if verificationHistory.length}}
+                  <details class="ss-payment-history">
+                    <summary>Verification history</summary>
+                    {{#each verificationHistory}}
+                      <p><strong>{{action}}</strong> by {{actor.full_name}} · {{createdAt}}<br>{{details.remarks}}</p>
+                    {{/each}}
+                  </details>
+                {{/if}}
               </td>
             </tr>
             {{else}}
             <tr>
-              <td colspan="7">No payments found.</td>
+              <td colspan="8">No payments found.</td>
             </tr>
             {{/each}}
           </tbody>
@@ -54,5 +69,13 @@
     </section>
   </main>
 </div>
+<script>
+  document.querySelectorAll("[data-payment-reject]").forEach(button => button.addEventListener("click", event => {
+    const input = event.currentTarget.form.querySelector("[data-payment-reason]");
+    input.required = true;
+    input.minLength = 5;
+    input.placeholder = "Enter the reason for rejecting this payment";
+  }));
+</script>
 <script src="/js/admin.js"></script>
 {{> footer }}

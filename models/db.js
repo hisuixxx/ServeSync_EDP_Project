@@ -24,6 +24,7 @@
     SOFTWARE.
     */
     
+import "dotenv/config";
 import { Sequelize } from "sequelize";
 
 const database = process.env.DB_NAME || "ServeSync_E-Commerce_Atienza";

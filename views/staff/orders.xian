@@ -17,7 +17,7 @@
                 <td>{{customer.full_name}}</td>
                 <td>{{items.length}}</td>
                 <td>PHP {{total_amount}}</td>
-                <td>{{payment.status}}</td>
+                <td>{{payment.methodLabel}} · {{payment.statusLabel}}</td>
                 <td>{{status}}</td>
                 <td><button class="ss-small-button ss-secondary" type="button" data-modal-open="staff-order-{{id}}">{{#if canUpdate}}View / update{{else}}View details{{/if}}</button></td>
               </tr>
@@ -39,7 +39,7 @@
             <div><dt>Contact</dt><dd>{{customer.phone}}</dd></div>
             <div><dt>Order type</dt><dd>{{order_type}}</dd></div>
             {{#if delivery_address}}<div><dt>Delivery address</dt><dd>{{delivery_address}}</dd></div>{{/if}}
-            <div><dt>Payment</dt><dd>{{payment.method}} · {{payment.status}}</dd></div>
+            <div><dt>Payment</dt><dd>{{payment.methodLabel}} · {{payment.statusLabel}}</dd></div>
             <div><dt>Total</dt><dd>PHP {{total_amount}}</dd></div>
             {{#if notes}}<div><dt>Special instructions</dt><dd>{{notes}}</dd></div>{{/if}}
           </dl>
